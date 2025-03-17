@@ -6,7 +6,11 @@ import { up, down } from './migrations/001_create_tables';
 dotenv.config();
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD, 
+  database: process.env.DB_NAME,
+  host: process.env.DB_HOST,
+  port: 5432
 });
 
 async function runMigrations(direction: 'up' | 'down'): Promise<void> {
