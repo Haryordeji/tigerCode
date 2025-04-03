@@ -1,0 +1,164 @@
+{
+    "patterns": [
+      {
+        "id": "two-pointers",
+        "title": "Two Pointers",
+        "description": "Efficiently solve array problems by using two pointers that move towards or away from each other.",
+        "icon": "👉👉",
+        "useCases": [
+          "Finding pairs in a sorted array that sum to a target value",
+          "Detecting cycles in a linked list",
+          "Removing duplicates from a sorted array",
+          "Palindrome checking"
+        ],
+        "algorithmicBackground": "The Two Pointers technique is often used to solve problems with O(n) time complexity instead of O(n²). It works particularly well with sorted arrays or linked lists.",
+        "examples": [
+          {
+            "id": "example-1",
+            "title": "Two Sum II - Input Array Is Sorted",
+            "description": "Given a sorted array of integers, find two numbers such that they add up to a specific target number.",
+            "difficulty": "Easy",
+            "code": "function twoSum(numbers: number[], target: number): number[] {\n  let left = 0;\n  let right = numbers.length - 1;\n  \n  while (left < right) {\n    const sum = numbers[left] + numbers[right];\n    \n    if (sum === target) {\n      return [left + 1, right + 1]; // 1-indexed array\n    } else if (sum < target) {\n      left++;\n    } else {\n      right--;\n    }\n  }\n  \n  return [-1, -1]; // No solution found\n}"
+          },
+          {
+            "id": "example-2",
+            "title": "Remove Duplicates from Sorted Array",
+            "description": "Given a sorted array, remove the duplicates in-place such that each element appears only once and return the new length.",
+            "difficulty": "Easy",
+            "code": "function removeDuplicates(nums: number[]): number {\n  if (nums.length === 0) return 0;\n  \n  let i = 0;\n  \n  for (let j = 1; j < nums.length; j++) {\n    if (nums[j] !== nums[i]) {\n      i++;\n      nums[i] = nums[j];\n    }\n  }\n  \n  return i + 1;\n}"
+          },
+          {
+            "id": "example-3",
+            "title": "Container With Most Water",
+            "description": "Given n non-negative integers representing the heights of bars, find two bars that together with the x-axis forms a container that holds the most water.",
+            "difficulty": "Medium",
+            "code": "function maxArea(height: number[]): number {\n  let maxWater = 0;\n  let left = 0;\n  let right = height.length - 1;\n  \n  while (left < right) {\n    const width = right - left;\n    const minHeight = Math.min(height[left], height[right]);\n    maxWater = Math.max(maxWater, width * minHeight);\n    \n    if (height[left] < height[right]) {\n      left++;\n    } else {\n      right--;\n    }\n  }\n  \n  return maxWater;\n}"
+          }
+        ]
+      },
+      {
+        "id": "sliding-window",
+        "title": "Sliding Window",
+        "description": "Efficiently process consecutive subarrays or substrings of a specific size.",
+        "icon": "🪟",
+        "useCases": [
+          "Finding the longest substring without repeating characters",
+          "Finding the maximum sum subarray of a fixed size",
+          "Finding the smallest subarray with a sum greater than a given value",
+          "String matching problems"
+        ],
+        "algorithmicBackground": "The Sliding Window technique is used to perform operations on a dynamic window in an array or string. It converts two nested loops into a single loop, reducing time complexity from O(n²) to O(n).",
+        "examples": [
+          {
+            "id": "example-1",
+            "title": "Maximum Sum Subarray of Size K",
+            "description": "Find the maximum sum of any contiguous subarray of size k.",
+            "difficulty": "Easy",
+            "code": "function maxSumSubarray(arr: number[], k: number): number {\n  let maxSum = 0;\n  let windowSum = 0;\n  \n  // Sum first k elements\n  for (let i = 0; i < k; i++) {\n    windowSum += arr[i];\n  }\n  \n  maxSum = windowSum;\n  \n  // Slide window and update maxSum\n  for (let i = k; i < arr.length; i++) {\n    windowSum = windowSum - arr[i - k] + arr[i];\n    maxSum = Math.max(maxSum, windowSum);\n  }\n  \n  return maxSum;\n}"
+          },
+          {
+            "id": "example-2",
+            "title": "Longest Substring Without Repeating Characters",
+            "description": "Given a string, find the length of the longest substring without repeating characters.",
+            "difficulty": "Medium",
+            "code": "function lengthOfLongestSubstring(s: string): number {\n  const charMap = new Map();\n  let maxLength = 0;\n  let windowStart = 0;\n  \n  for (let windowEnd = 0; windowEnd < s.length; windowEnd++) {\n    const rightChar = s[windowEnd];\n    \n    // If character is already in current window\n    if (charMap.has(rightChar)) {\n      // Move window start to position after the last occurrence\n      windowStart = Math.max(windowStart, charMap.get(rightChar) + 1);\n    }\n    \n    // Update character position\n    charMap.set(rightChar, windowEnd);\n    \n    // Update max length\n    maxLength = Math.max(maxLength, windowEnd - windowStart + 1);\n  }\n  \n  return maxLength;\n}"
+          }
+        ]
+      },
+      {
+        "id": "binary-search",
+        "title": "Binary Search",
+        "description": "Efficiently find an element in a sorted collection by repeatedly dividing the search space in half.",
+        "icon": "🔍",
+        "useCases": [
+          "Searching in a sorted array",
+          "Finding the first or last occurrence of an element",
+          "Finding the square root of a number",
+          "Finding the peak element in a bitonic array"
+        ],
+        "algorithmicBackground": "Binary Search is a divide and conquer algorithm that works on sorted data. It repeatedly divides the search space in half, achieving O(log n) time complexity instead of O(n) for linear search.",
+        "examples": [
+          {
+            "id": "example-1",
+            "title": "Binary Search in Sorted Array",
+            "description": "Search for a target value in a sorted array.",
+            "difficulty": "Easy",
+            "code": "function binarySearch(nums: number[], target: number): number {\n  let left = 0;\n  let right = nums.length - 1;\n  \n  while (left <= right) {\n    const mid = Math.floor((left + right) / 2);\n    \n    if (nums[mid] === target) {\n      return mid;\n    } else if (nums[mid] < target) {\n      left = mid + 1;\n    } else {\n      right = mid - 1;\n    }\n  }\n  \n  return -1; // Target not found\n}"
+          }
+        ]
+      },
+      {
+        "id": "dfs-bfs",
+        "title": "Depth-First & Breadth-First Search",
+        "description": "Traverse and search tree or graph data structures using recursive or queue-based approaches.",
+        "icon": "🌲",
+        "useCases": [
+          "Traversing trees and graphs",
+          "Finding connected components",
+          "Detecting cycles in a graph",
+          "Finding the shortest path in an unweighted graph (BFS)"
+        ],
+        "algorithmicBackground": "DFS explores as far as possible along each branch before backtracking, often implemented recursively. BFS explores all neighbors at the present depth before moving to nodes at the next depth level, using a queue.",
+        "examples": [
+          {
+            "id": "example-1",
+            "title": "DFS Tree Traversal",
+            "description": "Perform a depth-first traversal of a binary tree.",
+            "difficulty": "Easy",
+            "code": "function dfs(root: TreeNode | null): number[] {\n  const result: number[] = [];\n  \n  function traverse(node: TreeNode | null) {\n    if (!node) return;\n    \n    // Pre-order traversal: visit node first, then children\n    result.push(node.val);\n    traverse(node.left);\n    traverse(node.right);\n  }\n  \n  traverse(root);\n  return result;\n}"
+          },
+          {
+            "id": "example-2",
+            "title": "BFS Tree Traversal",
+            "description": "Perform a breadth-first traversal of a binary tree.",
+            "difficulty": "Easy",
+            "code": "function bfs(root: TreeNode | null): number[] {\n  if (!root) return [];\n  \n  const result: number[] = [];\n  const queue: TreeNode[] = [root];\n  \n  while (queue.length > 0) {\n    const node = queue.shift()!;\n    result.push(node.val);\n    \n    if (node.left) queue.push(node.left);\n    if (node.right) queue.push(node.right);\n  }\n  \n  return result;\n}"
+          }
+        ]
+      },
+      {
+        "id": "dynamic-programming",
+        "title": "Dynamic Programming",
+        "description": "Solve complex problems by breaking them down into simpler overlapping subproblems.",
+        "icon": "📊",
+        "useCases": [
+          "Fibonacci sequence calculation",
+          "Longest common subsequence",
+          "Knapsack problem",
+          "Shortest path problems"
+        ],
+        "algorithmicBackground": "Dynamic Programming optimizes recursive algorithms by storing results of subproblems to avoid redundant calculations. It's applicable when a problem has optimal substructure and overlapping subproblems.",
+        "examples": [
+          {
+            "id": "example-1",
+            "title": "Fibonacci Sequence",
+            "description": "Calculate the nth Fibonacci number efficiently.",
+            "difficulty": "Easy",
+            "code": "function fibonacci(n: number): number {\n  const dp: number[] = new Array(n + 1);\n  dp[0] = 0;\n  dp[1] = 1;\n  \n  for (let i = 2; i <= n; i++) {\n    dp[i] = dp[i - 1] + dp[i - 2];\n  }\n  \n  return dp[n];\n}"
+          }
+        ]
+      },
+      {
+        "id": "backtracking",
+        "title": "Backtracking",
+        "description": "Find all (or some) solutions to computational problems by incrementally building candidates and abandoning them when they fail to satisfy constraints.",
+        "icon": "↩️",
+        "useCases": [
+          "N-Queens problem",
+          "Sudoku solver",
+          "Generating permutations and combinations",
+          "Subset sum problems"
+        ],
+        "algorithmicBackground": "Backtracking is a general algorithm for finding all (or some) solutions to constraint satisfaction problems. It incrementally builds candidates and abandons a candidate as soon as it determines the candidate cannot be valid.",
+        "examples": [
+          {
+            "id": "example-1",
+            "title": "Generate All Permutations",
+            "description": "Generate all possible permutations of a given array of distinct integers.",
+            "difficulty": "Medium",
+            "code": "function permute(nums: number[]): number[][] {\n  const result: number[][] = [];\n  \n  function backtrack(current: number[], remaining: number[]) {\n    if (remaining.length === 0) {\n      result.push([...current]);\n      return;\n    }\n    \n    for (let i = 0; i < remaining.length; i++) {\n      current.push(remaining[i]);\n      const newRemaining = [...remaining.slice(0, i), ...remaining.slice(i + 1)];\n      backtrack(current, newRemaining);\n      current.pop();\n    }\n  }\n  \n  backtrack([], nums);\n  return result;\n}"
+          }
+        ]
+      }
+    ]
+  }
