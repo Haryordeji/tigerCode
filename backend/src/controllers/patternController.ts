@@ -55,10 +55,17 @@ export const getPattern = asyncHandler(async (req: Request, res: Response) => {
         // Update lastAccessed and increment viewCount
         progress.patternsProgress[patternProgressIndex].lastAccessed = new Date();
         progress.patternsProgress[patternProgressIndex].viewCount += 1;
+        // NOTE: We don't increment totalPatternsViewed since this pattern has been viewed before
       }
 
       // Update lastActive
       progress.lastActive = new Date();
+
+      // Ensure totalPatternsViewed doesn't exceed the actual number of patterns
+      const totalPatternCount = await Pattern.countDocuments();
+      if (progress.totalPatternsViewed > totalPatternCount) {
+        progress.totalPatternsViewed = totalPatternCount;
+      }
 
       // Save progress
       await progress.save();
@@ -135,6 +142,12 @@ export const completePattern = asyncHandler(async (req: Request, res: Response) 
     
     // Increment totalPatternsViewed if this is a new pattern
     progress.totalPatternsViewed += 1;
+    
+    // Ensure totalPatternsViewed doesn't exceed the actual number of patterns
+    const totalPatternCount = await Pattern.countDocuments();
+    if (progress.totalPatternsViewed > totalPatternCount) {
+      progress.totalPatternsViewed = totalPatternCount;
+    }
   } else {
     // Mark pattern as completed
     progress.patternsProgress[patternProgressIndex].completed = true;

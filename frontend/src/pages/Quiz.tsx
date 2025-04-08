@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getQuizQuestions, submitQuizAnswer, QuizQuestion } from '../services/dataService';
+import { getQuizQuestions, submitQuizAnswer, getQuizProgress, QuizQuestion, QuizAttempt, QuizProgressData } from '../services/dataService';
 import { useAuth } from '../contexts/AuthContext';
 import { Link } from 'react-router-dom';
 
@@ -17,6 +17,9 @@ export const Quiz = () => {
     explanation: string;
     patternTested: string;
   } | null>(null);
+  const [quizProgress, setQuizProgress] = useState<QuizProgressData | null>(null);
+  const [completedQuestions, setCompletedQuestions] = useState<Map<string, QuizAttempt>>(new Map());
+  
   const { user } = useAuth();
   
   // Track correct/incorrect for this session
@@ -27,11 +30,46 @@ export const Quiz = () => {
   });
 
   useEffect(() => {
-    const fetchQuizQuestions = async () => {
+    const fetchQuizData = async () => {
       try {
         setLoading(true);
+        
+        // Get all quiz questions
         const quizQuestions = await getQuizQuestions();
         setQuestions(quizQuestions);
+        
+        // If user is logged in, get their quiz progress
+        if (user) {
+          try {
+            const progress = await getQuizProgress();
+            setQuizProgress(progress);
+            
+            // Create a map of completed questions
+            const completedMap = new Map<string, QuizAttempt>();
+            progress.quizAttempts.forEach(attempt => {
+              completedMap.set(attempt.questionId, attempt);
+            });
+            setCompletedQuestions(completedMap);
+            
+            // Set current score
+            setScore(progress.correctQuizCount);
+            
+            // Find the first unanswered question
+            if (quizQuestions.length > 0 && progress.quizAttempts.length > 0) {
+              const answeredIds = new Set(progress.quizAttempts.map(a => a.questionId));
+              const firstUnansweredIndex = quizQuestions.findIndex(q => !answeredIds.has(q.id));
+              
+              if (firstUnansweredIndex !== -1) {
+                setCurrentQuestionIndex(firstUnansweredIndex);
+              } else {
+                // All questions have been answered - show the first one
+                setCurrentQuestionIndex(0);
+              }
+            }
+          } catch (err) {
+            console.error('Failed to load quiz progress:', err);
+          }
+        }
       } catch (err) {
         setError('Failed to load quiz questions. Please try again later.');
         console.error(err);
@@ -40,8 +78,8 @@ export const Quiz = () => {
       }
     };
 
-    fetchQuizQuestions();
-  }, []);
+    fetchQuizData();
+  }, [user]);
 
   const currentQuestion = questions[currentQuestionIndex];
 
@@ -64,6 +102,19 @@ export const Quiz = () => {
           isCorrect: result.isCorrect,
           explanation: result.explanation,
           patternTested: result.patternTested
+        });
+        
+        // Update completedQuestions map
+        setCompletedQuestions(prev => {
+          const newMap = new Map(prev);
+          newMap.set(currentQuestion.id, {
+            questionId: currentQuestion.id,
+            selectedAnswer: selectedOption,
+            correct: result.isCorrect,
+            timestamp: new Date(),
+            patternTested: result.patternTested
+          });
+          return newMap;
         });
         
         // Update session stats
@@ -107,6 +158,19 @@ export const Quiz = () => {
           isCorrect,
           explanation: currentQuestion.explanation,
           patternTested
+        });
+        
+        // Update completedQuestions map (locally)
+        setCompletedQuestions(prev => {
+          const newMap = new Map(prev);
+          newMap.set(currentQuestion.id, {
+            questionId: currentQuestion.id,
+            selectedAnswer: selectedOption,
+            correct: isCorrect,
+            timestamp: new Date(),
+            patternTested
+          });
+          return newMap;
         });
         
         // Update session stats (local only)
@@ -192,6 +256,21 @@ export const Quiz = () => {
       incorrect: 0,
       patternStats: {}
     });
+  };
+
+  // Jump to a specific question
+  const jumpToQuestion = (index: number) => {
+    if (index >= 0 && index < questions.length) {
+      setCurrentQuestionIndex(index);
+      setSelectedOption(null);
+      setShowAnswer(false);
+      setAnswerResult(null);
+    }
+  };
+
+  // Get the answer status for a specific question
+  const getQuestionStatus = (questionId: string) => {
+    return completedQuestions.get(questionId);
   };
 
   if (loading) {
@@ -406,7 +485,7 @@ export const Quiz = () => {
 
         <div className="p-6 bg-gray-50 border-t flex justify-between items-center">
           <div className="text-gray-600">
-            Current score: {score}/{currentQuestionIndex + (showAnswer ? 1 : 0)}
+            Current score: {score}/{quizProgress?.totalQuizAttempts || completedQuestions.size}
           </div>
           
           {!showAnswer ? (
@@ -431,6 +510,53 @@ export const Quiz = () => {
           )}
         </div>
       </div>
+      
+      {/* Completed Questions List */}
+      {completedQuestions.size > 0 && (
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
+          <div className="p-4 bg-gray-50 border-b">
+            <h3 className="font-semibold text-gray-700">Completed Questions</h3>
+          </div>
+          <div className="p-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {questions.map((question, index) => {
+                const attempt = getQuestionStatus(question.id);
+                const isActive = index === currentQuestionIndex;
+                
+                return (
+                  <button
+                    key={question.id}
+                    onClick={() => jumpToQuestion(index)}
+                    className={`text-left p-3 rounded-lg border ${
+                      attempt 
+                        ? attempt.correct 
+                          ? 'border-green-500 bg-green-50' 
+                          : 'border-red-500 bg-red-50'
+                        : 'border-gray-300 bg-gray-50'
+                    } ${
+                      isActive ? 'ring-2 ring-tiger-orange' : ''
+                    } hover:shadow-md transition-shadow`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium">Question {index + 1}</span>
+                      {attempt && (
+                        <span className={`text-xs px-2 py-1 rounded-full ${
+                          attempt.correct 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {attempt.correct ? 'Correct' : 'Incorrect'}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-gray-600 truncate mt-1">{question.question}</p>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
       
       {currentQuestionIndex > 0 && (
         <div className="flex justify-between items-center">

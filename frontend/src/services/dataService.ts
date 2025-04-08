@@ -238,3 +238,13 @@ export const getUserDashboard = async (): Promise<DashboardData> => {
 export const getProgressOverview = async (): Promise<ProgressOverview> => {
   return apiRequest<ProgressOverview>('/users/progress-overview');
 };
+
+export const getNextQuizQuestion = async (): Promise<{ 
+  lastAnsweredIndex: number;
+  nextUnansweredIndex: number;
+}> => {
+  return apiRequest<{ 
+    lastAnsweredIndex: number;
+    nextUnansweredIndex: number;
+  }>('/quiz/user/continue');
+};

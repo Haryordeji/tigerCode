@@ -72,14 +72,21 @@ export const Dashboard = () => {
         <div className="bg-white rounded-xl shadow-md p-6">
           <h3 className="text-lg font-semibold text-gray-500 mb-2">Patterns Viewed</h3>
           <p className="text-3xl font-bold">{data.totalPatternsViewed}</p>
+          {data.completionPercentage > 0 && (
+            <p className="text-sm text-gray-500">
+              {data.completionPercentage.toFixed(1)}% of available patterns
+            </p>
+          )}
         </div>
         
         <div className="bg-white rounded-xl shadow-md p-6">
           <h3 className="text-lg font-semibold text-gray-500 mb-2">Patterns Completed</h3>
           <p className="text-3xl font-bold">{data.completedPatterns}</p>
-          <p className="text-sm text-gray-500">
-            {data.completionPercentage.toFixed(1)}% of available patterns
-          </p>
+          {data.totalPatternsViewed > 0 && (
+            <p className="text-sm text-gray-500">
+              {((data.completedPatterns / data.totalPatternsViewed) * 100).toFixed(1)}% of viewed patterns
+            </p>
+          )}
         </div>
         
         <div className="bg-white rounded-xl shadow-md p-6">

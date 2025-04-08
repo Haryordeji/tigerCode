@@ -253,3 +253,53 @@ export const getQuizSummary = asyncHandler(async (req: Request, res: Response): 
     }
   });
 });
+
+// @desc    Get last answered question and next unanswered question
+// @route   GET /api/quiz/continue
+// @access  Private
+export const getNextQuestion = asyncHandler(async (req: Request, res: Response): Promise<any> => {
+  if (!req.user || !req.user._id) {
+    throw new AppError('User not authenticated', 401);
+  }
+  
+  const userId = req.user._id;
+  
+  // Find user progress
+  const progress = await Progress.findOne({ user: userId });
+  
+  if (!progress || progress.quizAttempts.length === 0) {
+    // No quiz attempts yet, return first question
+    return res.status(200).json({
+      success: true,
+      data: {
+        lastAnsweredIndex: -1,
+        nextUnansweredIndex: 0
+      }
+    });
+  }
+  
+  // Get all questions
+  const allQuestions = await QuizQuestion.find().sort({ id: 1 });
+  
+  // Get all question IDs that have been attempted
+  const attemptedQuestionIds = new Set(progress.quizAttempts.map(attempt => attempt.questionId));
+  
+  // Find the index of the first unanswered question
+  const nextUnansweredIndex = allQuestions.findIndex(q => !attemptedQuestionIds.has(q.id));
+  
+  // Get the most recently answered question
+  const sortedAttempts = [...progress.quizAttempts].sort(
+    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+  );
+  
+  const lastAnsweredQuestionId = sortedAttempts[0]?.questionId;
+  const lastAnsweredIndex = allQuestions.findIndex(q => q.id === lastAnsweredQuestionId);
+  
+  res.status(200).json({
+    success: true,
+    data: {
+      lastAnsweredIndex: lastAnsweredIndex !== -1 ? lastAnsweredIndex : -1,
+      nextUnansweredIndex: nextUnansweredIndex !== -1 ? nextUnansweredIndex : 0
+    }
+  });
+});
