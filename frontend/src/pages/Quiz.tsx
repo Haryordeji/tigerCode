@@ -309,6 +309,14 @@ export const Quiz = () => {
         accuracy
       };
     }).sort((a, b) => b.accuracy - a.accuracy);
+
+    useEffect(() => {
+      if (!user) {
+        setQuizProgress(null);
+        setCompletedQuestions(new Map());
+        
+      }
+    }, [user]);
     
     return (
       <div className="max-w-4xl mx-auto px-4 py-12 pt-24">

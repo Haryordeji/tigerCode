@@ -40,6 +40,9 @@ export const getPattern = asyncHandler(async (req: Request, res: Response) => {
         p => p.patternId === pattern.id
       );
 
+      // Get the total number of patterns for limit checking
+      const totalPatternCount = await Pattern.countDocuments();
+
       if (patternProgressIndex === -1) {
         // Add pattern to progress if it's the first time viewing
         progress.patternsProgress.push({
@@ -50,22 +53,16 @@ export const getPattern = asyncHandler(async (req: Request, res: Response) => {
         });
         
         // Increment totalPatternsViewed if this is a new pattern
-        progress.totalPatternsViewed += 1;
+        // Make sure we don't exceed the total available pattern count
+        progress.totalPatternsViewed = Math.min(progress.totalPatternsViewed + 1, totalPatternCount);
       } else {
         // Update lastAccessed and increment viewCount
         progress.patternsProgress[patternProgressIndex].lastAccessed = new Date();
         progress.patternsProgress[patternProgressIndex].viewCount += 1;
-        // NOTE: We don't increment totalPatternsViewed since this pattern has been viewed before
       }
 
       // Update lastActive
       progress.lastActive = new Date();
-
-      // Ensure totalPatternsViewed doesn't exceed the actual number of patterns
-      const totalPatternCount = await Pattern.countDocuments();
-      if (progress.totalPatternsViewed > totalPatternCount) {
-        progress.totalPatternsViewed = totalPatternCount;
-      }
 
       // Save progress
       await progress.save();
@@ -102,6 +99,7 @@ export const completePattern = asyncHandler(async (req: Request, res: Response) 
   if (!req.user || !req.user._id) {
     throw new AppError('User not authenticated', 401);
   }
+  
   const pattern = await Pattern.findOne({ id: req.params.id });
 
   if (!pattern) {
@@ -112,53 +110,57 @@ export const completePattern = asyncHandler(async (req: Request, res: Response) 
 
   // Find user progress
   let progress = await Progress.findOne({ user: userId });
+  
+  // Get the total pattern count for limit checking
+  const totalPatternCount = await Pattern.countDocuments();
 
   if (!progress) {
     // Create progress if it doesn't exist
     progress = await Progress.create({
       user: userId,
-      patternsProgress: [],
+      patternsProgress: [{
+        patternId: pattern.id,
+        completed: true,
+        lastAccessed: new Date(),
+        viewCount: 1
+      }],
       quizAttempts: [],
       quizScore: 0,
-      totalPatternsViewed: 0,
+      totalPatternsViewed: 1, // First pattern view
+      lastActive: new Date(),
       correctQuizCount: 0,
       totalQuizAttempts: 0
     });
-  }
-
-  // Check if pattern is already in progress
-  const patternProgressIndex = progress.patternsProgress.findIndex(
-    p => p.patternId === pattern.id
-  );
-
-  if (patternProgressIndex === -1) {
-    // Add pattern to progress
-    progress.patternsProgress.push({
-      patternId: pattern.id,
-      completed: true,
-      lastAccessed: new Date(),
-      viewCount: 1
-    });
-    
-    // Increment totalPatternsViewed if this is a new pattern
-    progress.totalPatternsViewed += 1;
-    
-    // Ensure totalPatternsViewed doesn't exceed the actual number of patterns
-    const totalPatternCount = await Pattern.countDocuments();
-    if (progress.totalPatternsViewed > totalPatternCount) {
-      progress.totalPatternsViewed = totalPatternCount;
-    }
   } else {
-    // Mark pattern as completed
-    progress.patternsProgress[patternProgressIndex].completed = true;
-    progress.patternsProgress[patternProgressIndex].lastAccessed = new Date();
+    // Check if pattern is already in progress
+    const patternProgressIndex = progress.patternsProgress.findIndex(
+      p => p.patternId === pattern.id
+    );
+
+    if (patternProgressIndex === -1) {
+      // Add pattern to progress
+      progress.patternsProgress.push({
+        patternId: pattern.id,
+        completed: true,
+        lastAccessed: new Date(),
+        viewCount: 1
+      });
+      
+      // Increment totalPatternsViewed if this is a new pattern
+      // Make sure we don't exceed the total available pattern count
+      progress.totalPatternsViewed = Math.min(progress.totalPatternsViewed + 1, totalPatternCount);
+    } else {
+      // Mark pattern as completed
+      progress.patternsProgress[patternProgressIndex].completed = true;
+      progress.patternsProgress[patternProgressIndex].lastAccessed = new Date();
+    }
+
+    // Update lastActive
+    progress.lastActive = new Date();
+
+    // Save progress
+    await progress.save();
   }
-
-  // Update lastActive
-  progress.lastActive = new Date();
-
-  // Save progress
-  await progress.save();
 
   res.status(200).json({
     success: true,

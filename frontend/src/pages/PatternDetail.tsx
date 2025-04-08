@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { getPatternById, completePattern, Pattern } from '../services/dataService';
+import { getPatternById, completePattern, getPatternProgress, Pattern } from '../services/dataService';
 import { useAuth } from '../contexts/AuthContext';
 
 export const PatternDetail = () => {
@@ -19,6 +19,20 @@ export const PatternDetail = () => {
         setLoading(true);
         const patternData = await getPatternById(patternId);
         setPattern(patternData);
+        
+        // If user is logged in, check if pattern is completed
+        if (user) {
+          try {
+            const progress = await getPatternProgress();
+            const patternProgress = progress.patternsProgress.find(p => p.patternId === patternId);
+            if (patternProgress) {
+              setCompleted(patternProgress.completed);
+            }
+          } catch (err) {
+            // Silently fail - we'll just show the pattern as not completed
+            console.error('Failed to fetch pattern progress:', err);
+          }
+        }
       } catch (err) {
         setError('Failed to load pattern details. Please try again later.');
         console.error(err);
@@ -28,7 +42,15 @@ export const PatternDetail = () => {
     };
 
     fetchPattern();
-  }, [patternId]);
+    
+    // Track view in analytics (if needed)
+    const trackPatternView = async () => {
+      // This is where you could add additional tracking logic if needed
+      console.log(`Pattern viewed: ${patternId}`);
+    };
+    
+    trackPatternView();
+  }, [patternId, user]); // Re-run if patternId or user changes
 
   const handleMarkComplete = async () => {
     if (!patternId || !user) return;

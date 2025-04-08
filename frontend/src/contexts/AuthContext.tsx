@@ -123,8 +123,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = () => {
+    // Remove token
     localStorage.removeItem('token');
-    setUser(null);
+        setUser(null);
+    
+    try {
+      fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      }).catch(() => {
+        console.error('Failed to logout');
+      });
+    } catch (e) {
+      console.error('Error during logout:', e);
+    }
+    
+    window.location.href = '/';
   };
 
   const googleLogin = () => {
