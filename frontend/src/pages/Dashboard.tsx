@@ -39,11 +39,7 @@ export const Dashboard = () => {
         const result = await response.json();
         setData(result.data);
       } catch (err) {
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError('Failed to load dashboard');
-        }
+        setError(err instanceof Error ? err.message : 'Failed to load dashboard');
       } finally {
         setLoading(false);
       }

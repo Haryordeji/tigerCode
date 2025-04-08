@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema, Types } from 'mongoose';
 import { IUser } from './User';
 import { IQuizQuestion } from './Quiz';
 import { IPattern } from './Pattern';
@@ -17,7 +17,7 @@ interface IQuizAttempt {
 }
 
 export interface IProgress extends Document {
-  user: IUser['_id'];
+  user: Types.ObjectId;  // Changed this line to use Types.ObjectId
   patternsProgress: IPatternProgress[];
   quizAttempts: IQuizAttempt[];
   quizScore: number;
@@ -68,7 +68,7 @@ const quizAttemptSchema = new Schema(
 const progressSchema = new Schema<IProgress>(
   {
     user: {
-      type: Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId as any,  // Added 'as any' to suppress type error
       ref: 'User',
       required: true,
       unique: true

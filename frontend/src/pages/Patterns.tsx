@@ -5,23 +5,40 @@ import { getPatternsList, PatternCard } from '../services/dataService';
 export const Patterns = () => {
   const [patterns, setPatterns] = useState<PatternCard[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // In a real app, this would be an async API call
-    setLoading(true);
-    
-    // Simulate API delay
-    setTimeout(() => {
-      const patternsData = getPatternsList();
-      setPatterns(patternsData);
-      setLoading(false);
-    }, 300);
+    const fetchPatterns = async () => {
+      try {
+        setLoading(true);
+        const patternsData = await getPatternsList();
+        setPatterns(patternsData);
+      } catch (err) {
+        setError('Failed to load patterns. Please try again later.');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPatterns();
   }, []);
 
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-tiger-orange"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-24">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+          <strong className="font-bold">Error:</strong>
+          <span className="block sm:inline"> {error}</span>
+        </div>
       </div>
     );
   }

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { getQuizQuestions, QuizQuestion } from '../services/dataService';
+import { getQuizQuestions, submitQuizAnswer, QuizQuestion } from '../services/dataService';
+import { useAuth } from '../contexts/AuthContext';
 
 export const Quiz = () => {
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
@@ -9,15 +10,28 @@ export const Quiz = () => {
   const [score, setScore] = useState(0);
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [answerResult, setAnswerResult] = useState<{
+    isCorrect: boolean;
+    explanation: string;
+  } | null>(null);
+  const { user } = useAuth();
 
   useEffect(() => {
-    setLoading(true);
-    
-    setTimeout(() => {
-      const quizQuestions = getQuizQuestions();
-      setQuestions(quizQuestions);
-      setLoading(false);
-    }, 300);
+    const fetchQuizQuestions = async () => {
+      try {
+        setLoading(true);
+        const quizQuestions = await getQuizQuestions();
+        setQuestions(quizQuestions);
+      } catch (err) {
+        setError('Failed to load quiz questions. Please try again later.');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchQuizQuestions();
   }, []);
 
   const currentQuestion = questions[currentQuestionIndex];
@@ -26,16 +40,54 @@ export const Quiz = () => {
     setSelectedOption(optionId);
   };
 
-  const handleCheckAnswer = () => {
+  const handleCheckAnswer = async () => {
+    if (!selectedOption || !currentQuestion) return;
+    
     setShowAnswer(true);
-    if (selectedOption === currentQuestion.correctAnswer) {
-      setScore(score + 1);
+    
+    try {
+      if (user) {
+        // If logged in, submit answer to API
+        const result = await submitQuizAnswer(currentQuestion.id, selectedOption);
+        setAnswerResult({
+          isCorrect: result.isCorrect,
+          explanation: result.explanation
+        });
+        
+        if (result.isCorrect) {
+          setScore(score + 1);
+        }
+      } else {
+        // If not logged in, check answer locally
+        const isCorrect = selectedOption === currentQuestion.correctAnswer;
+        setAnswerResult({
+          isCorrect,
+          explanation: currentQuestion.explanation
+        });
+        
+        if (isCorrect) {
+          setScore(score + 1);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to submit answer:', err);
+      // Fallback to local checking if API fails
+      const isCorrect = selectedOption === currentQuestion.correctAnswer;
+      setAnswerResult({
+        isCorrect,
+        explanation: currentQuestion.explanation
+      });
+      
+      if (isCorrect) {
+        setScore(score + 1);
+      }
     }
   };
 
   const handleNextQuestion = () => {
     setSelectedOption(null);
     setShowAnswer(false);
+    setAnswerResult(null);
     
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
@@ -50,12 +102,24 @@ export const Quiz = () => {
     setShowAnswer(false);
     setScore(0);
     setQuizCompleted(false);
+    setAnswerResult(null);
   };
 
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-tiger-orange"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-12 pt-24">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+          <strong className="font-bold">Error:</strong>
+          <span className="block sm:inline"> {error}</span>
+        </div>
       </div>
     );
   }
@@ -149,10 +213,10 @@ export const Quiz = () => {
           </div>
         </div>
 
-        {showAnswer && (
+        {showAnswer && answerResult && (
           <div className="p-6 bg-gray-50 border-t">
             <h3 className="text-lg font-semibold text-tiger-orange mb-2">Explanation</h3>
-            <p className="text-gray-700">{currentQuestion.explanation}</p>
+            <p className="text-gray-700">{answerResult.explanation}</p>
           </div>
         )}
 
