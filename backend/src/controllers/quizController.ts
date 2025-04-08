@@ -53,6 +53,10 @@ export const submitQuizAnswer = asyncHandler(async (req: Request, res: Response)
   // Check if answer is correct
   const isCorrect = answer === question.correctAnswer;
 
+  // Get the pattern being tested from the correct answer
+  const correctOption = question.options.find(opt => opt.id === question.correctAnswer);
+  const patternTested = correctOption ? correctOption.pattern : '';
+
   const userId = req.user._id;
 
   // Find user progress
@@ -65,7 +69,9 @@ export const submitQuizAnswer = asyncHandler(async (req: Request, res: Response)
       patternsProgress: [],
       quizAttempts: [],
       quizScore: 0,
-      totalPatternsViewed: 0
+      totalPatternsViewed: 0,
+      correctQuizCount: 0,
+      totalQuizAttempts: 0
     });
   }
 
@@ -74,12 +80,17 @@ export const submitQuizAnswer = asyncHandler(async (req: Request, res: Response)
     questionId: question.id,
     selectedAnswer: answer,
     correct: isCorrect,
-    timestamp: new Date()
+    timestamp: new Date(),
+    patternTested
   });
 
-  // Update quiz score if correct
+  // Increment total quiz attempts count
+  progress.totalQuizAttempts += 1;
+
+  // Update quiz score and correct count if correct
   if (isCorrect) {
     progress.quizScore += 1;
+    progress.correctQuizCount += 1;
   }
 
   // Update lastActive
@@ -94,7 +105,8 @@ export const submitQuizAnswer = asyncHandler(async (req: Request, res: Response)
       questionId: question.id,
       isCorrect,
       correctAnswer: question.correctAnswer,
-      explanation: question.explanation
+      explanation: question.explanation,
+      patternTested
     }
   });
 });
@@ -116,7 +128,10 @@ export const getQuizProgress = asyncHandler(async (req: Request, res: Response):
       success: true,
       data: {
         quizAttempts: [],
-        quizScore: 0
+        quizScore: 0,
+        totalQuizAttempts: 0,
+        correctQuizCount: 0,
+        accuracy: 0
       }
     });
   }
@@ -125,10 +140,36 @@ export const getQuizProgress = asyncHandler(async (req: Request, res: Response):
   const totalQuestions = await QuizQuestion.countDocuments();
 
   // Calculate statistics
-  const totalAttempts = progress.quizAttempts.length;
-  const correctAttempts = progress.quizAttempts.filter(attempt => attempt.correct).length;
-  const incorrectAttempts = totalAttempts - correctAttempts;
-  const accuracy = totalAttempts > 0 ? (correctAttempts / totalAttempts) * 100 : 0;
+  const accuracy = progress.totalQuizAttempts > 0 
+    ? (progress.correctQuizCount / progress.totalQuizAttempts) * 100 
+    : 0;
+
+  // Calculate performance by pattern
+  const patternPerformance: Record<string, { correct: number; total: number; accuracy: number }> = {};
+  
+  progress.quizAttempts.forEach(attempt => {
+    if (attempt.patternTested) {
+      if (!patternPerformance[attempt.patternTested]) {
+        patternPerformance[attempt.patternTested] = {
+          correct: 0,
+          total: 0,
+          accuracy: 0
+        };
+      }
+      
+      patternPerformance[attempt.patternTested].total += 1;
+      
+      if (attempt.correct) {
+        patternPerformance[attempt.patternTested].correct += 1;
+      }
+    }
+  });
+  
+  // Calculate accuracy for each pattern
+  Object.keys(patternPerformance).forEach(pattern => {
+    const { correct, total } = patternPerformance[pattern];
+    patternPerformance[pattern].accuracy = total > 0 ? (correct / total) * 100 : 0;
+  });
 
   res.status(200).json({
     success: true,
@@ -136,10 +177,79 @@ export const getQuizProgress = asyncHandler(async (req: Request, res: Response):
       quizAttempts: progress.quizAttempts,
       quizScore: progress.quizScore,
       totalQuestions,
-      totalAttempts,
-      correctAttempts,
-      incorrectAttempts,
-      accuracy
+      totalQuizAttempts: progress.totalQuizAttempts,
+      correctQuizCount: progress.correctQuizCount,
+      incorrectCount: progress.totalQuizAttempts - progress.correctQuizCount,
+      accuracy,
+      patternPerformance
+    }
+  });
+});
+
+// @desc    Get quiz performance summary
+// @route   GET /api/quiz/summary
+// @access  Private
+export const getQuizSummary = asyncHandler(async (req: Request, res: Response): Promise<any> => {
+  if (!req.user || !req.user._id) {
+    throw new AppError('User not authenticated', 401);
+  }
+  
+  const userId = req.user._id;
+  
+  // Find user progress
+  const progress = await Progress.findOne({ user: userId });
+  
+  if (!progress) {
+    return res.status(200).json({
+      success: true,
+      data: {
+        totalAttempts: 0,
+        correctCount: 0,
+        accuracy: 0,
+        topPatterns: []
+      }
+    });
+  }
+  
+  // Calculate performance by pattern
+  const patternStats: Record<string, { correct: number; total: number }> = {};
+  
+  progress.quizAttempts.forEach(attempt => {
+    if (attempt.patternTested) {
+      if (!patternStats[attempt.patternTested]) {
+        patternStats[attempt.patternTested] = { correct: 0, total: 0 };
+      }
+      
+      patternStats[attempt.patternTested].total += 1;
+      
+      if (attempt.correct) {
+        patternStats[attempt.patternTested].correct += 1;
+      }
+    }
+  });
+  
+  // Get top 3 strongest patterns
+  const topPatterns = Object.entries(patternStats)
+    .filter(([_, stats]) => stats.total >= 2) // Only include patterns with at least 2 attempts
+    .map(([pattern, stats]) => ({
+      pattern,
+      accuracy: stats.total > 0 ? (stats.correct / stats.total) * 100 : 0,
+      attempts: stats.total
+    }))
+    .sort((a, b) => b.accuracy - a.accuracy)
+    .slice(0, 3);
+  
+  const accuracy = progress.totalQuizAttempts > 0 
+    ? (progress.correctQuizCount / progress.totalQuizAttempts) * 100 
+    : 0;
+  
+  res.status(200).json({
+    success: true,
+    data: {
+      totalAttempts: progress.totalQuizAttempts,
+      correctCount: progress.correctQuizCount,
+      accuracy,
+      topPatterns
     }
   });
 });

@@ -3,7 +3,6 @@ import cors from 'cors';
 import morgan from 'morgan';
 import helmet from 'helmet';
 import passport from 'passport';
-import { rateLimit } from 'express-rate-limit';
 import { env } from './config/env';
 import configurePassport from './config/passport';
 import authRoutes from './routes/authRoutes';
@@ -31,17 +30,6 @@ app.use(cors({
 if (env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
-
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  limit: 100, // Limit each IP to 100 requests per window
-  standardHeaders: true,
-  legacyHeaders: false
-});
-
-// Apply rate limiting to API routes
-app.use('/api', limiter);
 
 // Initialize Passport
 app.use(passport.initialize());

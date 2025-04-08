@@ -1,43 +1,36 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Link } from 'react-router-dom';
-
-interface DashboardData {
-  totalPatternsViewed: number;
-  completedPatterns: number;
-  quizScore: number;
-  quizAttempts: number;
-  recentPatterns: string[];
-  patternStats: Record<string, { correct: number; incorrect: number }>;
-}
+import { getUserDashboard, getQuizSummary, DashboardData, QuizSummary } from '../services/dataService';
 
 export const Dashboard = () => {
   const { user } = useAuth();
   const [data, setData] = useState<DashboardData | null>(null);
+  const [quizSummary, setQuizSummary] = useState<QuizSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchDashboard = async () => {
+    const fetchDashboardData = async () => {
       try {
+        setLoading(true);
         const token = localStorage.getItem('token');
         
         if (!token) {
           throw new Error('Not authenticated');
         }
         
-        const response = await fetch('/api/users/dashboard', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch dashboard data');
+        // Fetch dashboard data
+        const dashboardData = await getUserDashboard();
+        setData(dashboardData);
+        
+        // Fetch quiz summary
+        try {
+          const summary = await getQuizSummary();
+          setQuizSummary(summary);
+        } catch (err) {
+          console.error('Failed to load quiz summary:', err);
         }
-
-        const result = await response.json();
-        setData(result.data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load dashboard');
       } finally {
@@ -45,7 +38,7 @@ export const Dashboard = () => {
       }
     };
 
-    fetchDashboard();
+    fetchDashboardData();
   }, []);
 
   if (loading) {
@@ -74,8 +67,8 @@ export const Dashboard = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-24">
       <h1 className="text-3xl font-bold text-tiger-orange mb-8">Your Dashboard</h1>
       
+      {/* Summary Stats */}
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-        {/* Stats Cards */}
         <div className="bg-white rounded-xl shadow-md p-6">
           <h3 className="text-lg font-semibold text-gray-500 mb-2">Patterns Viewed</h3>
           <p className="text-3xl font-bold">{data.totalPatternsViewed}</p>
@@ -84,37 +77,49 @@ export const Dashboard = () => {
         <div className="bg-white rounded-xl shadow-md p-6">
           <h3 className="text-lg font-semibold text-gray-500 mb-2">Patterns Completed</h3>
           <p className="text-3xl font-bold">{data.completedPatterns}</p>
+          <p className="text-sm text-gray-500">
+            {data.completionPercentage.toFixed(1)}% of available patterns
+          </p>
         </div>
         
         <div className="bg-white rounded-xl shadow-md p-6">
           <h3 className="text-lg font-semibold text-gray-500 mb-2">Quiz Score</h3>
           <p className="text-3xl font-bold">{data.quizScore}</p>
+          <p className="text-sm text-gray-500">
+            {data.accuracy.toFixed(1)}% accuracy rate
+          </p>
         </div>
         
         <div className="bg-white rounded-xl shadow-md p-6">
           <h3 className="text-lg font-semibold text-gray-500 mb-2">Quiz Attempts</h3>
-          <p className="text-3xl font-bold">{data.quizAttempts}</p>
+          <p className="text-3xl font-bold">{data.totalQuizAttempts}</p>
+          <p className="text-sm text-gray-500">
+            {data.correctQuizCount} correct answers
+          </p>
         </div>
       </div>
       
-      <div className="grid md:grid-cols-2 gap-8">
-        {/* Recent Patterns */}
+      <div className="grid md:grid-cols-2 gap-8 mb-12">
+        {/* Most Viewed Patterns */}
         <div className="bg-white rounded-xl shadow-md p-6">
-          <h2 className="text-xl font-bold text-tiger-orange mb-4">Recently Viewed Patterns</h2>
+          <h2 className="text-xl font-bold text-tiger-orange mb-4">Most Viewed Patterns</h2>
           
-          {data.recentPatterns.length > 0 ? (
-            <ul className="space-y-3">
-              {data.recentPatterns.map((patternId) => (
-                <li key={patternId} className="border-b pb-2">
-                  <Link 
-                    to={`/patterns/${patternId}`}
-                    className="text-gray-800 hover:text-tiger-orange transition-colors"
-                  >
-                    {patternId.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-                  </Link>
-                </li>
+          {data.mostViewedPatterns && data.mostViewedPatterns.length > 0 ? (
+            <div className="space-y-3">
+              {data.mostViewedPatterns.map((pattern) => (
+                <div key={pattern.patternId} className="border-b pb-2">
+                  <div className="flex justify-between">
+                    <Link 
+                      to={`/patterns/${pattern.patternId}`}
+                      className="text-gray-800 hover:text-tiger-orange transition-colors"
+                    >
+                      {pattern.patternId.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                    </Link>
+                    <span className="text-gray-500">{pattern.viewCount} views</span>
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
           ) : (
             <p className="text-gray-500">No patterns viewed yet.</p>
           )}
@@ -129,11 +134,47 @@ export const Dashboard = () => {
           </div>
         </div>
         
-        {/* Pattern Performance */}
+        {/* Recently Viewed Patterns */}
+        <div className="bg-white rounded-xl shadow-md p-6">
+          <h2 className="text-xl font-bold text-tiger-orange mb-4">Recently Viewed Patterns</h2>
+          
+          {data.recentPatterns && data.recentPatterns.length > 0 ? (
+            <div className="space-y-3">
+              {data.recentPatterns.map((pattern) => (
+                <div key={pattern.patternId} className="border-b pb-2">
+                  <div className="flex justify-between">
+                    <Link 
+                      to={`/patterns/${pattern.patternId}`}
+                      className="text-gray-800 hover:text-tiger-orange transition-colors"
+                    >
+                      {pattern.patternId.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                    </Link>
+                    <div className="flex items-center">
+                      {pattern.completed && (
+                        <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded mr-2">
+                          Completed
+                        </span>
+                      )}
+                      <span className="text-gray-500 text-sm">
+                        {new Date(pattern.lastAccessed).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500">No patterns viewed yet.</p>
+          )}
+        </div>
+      </div>
+      
+      <div className="grid md:grid-cols-2 gap-8">
+        {/* Pattern Quiz Performance */}
         <div className="bg-white rounded-xl shadow-md p-6">
           <h2 className="text-xl font-bold text-tiger-orange mb-4">Pattern Quiz Performance</h2>
           
-          {Object.keys(data.patternStats).length > 0 ? (
+          {data.patternStats && Object.keys(data.patternStats).length > 0 ? (
             <div className="space-y-4">
               {Object.entries(data.patternStats).map(([pattern, stats]) => {
                 const total = stats.correct + stats.incorrect;
@@ -142,12 +183,18 @@ export const Dashboard = () => {
                 return (
                   <div key={pattern} className="border-b pb-3">
                     <div className="flex justify-between mb-1">
-                      <span className="font-medium">{pattern}</span>
+                      <span className="font-medium">
+                        {pattern.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                      </span>
                       <span className="text-gray-600">{percentage}% correct</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2.5">
                       <div 
-                        className="bg-tiger-orange h-2.5 rounded-full" 
+                        className={`h-2.5 rounded-full ${
+                          percentage >= 70 ? 'bg-green-500' :
+                          percentage >= 40 ? 'bg-tiger-orange' :
+                          'bg-red-500'
+                        }`}
                         style={{ width: `${percentage}%` }}
                       ></div>
                     </div>
@@ -171,6 +218,39 @@ export const Dashboard = () => {
             </Link>
           </div>
         </div>
+        
+        {/* Top Performing Patterns */}
+        {quizSummary && quizSummary.topPatterns.length > 0 && (
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <h2 className="text-xl font-bold text-tiger-orange mb-4">Your Top Patterns</h2>
+            
+            <div className="space-y-4">
+              {quizSummary.topPatterns.map((pattern) => (
+                <div key={pattern.pattern} className="border-b pb-3">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <div className="font-medium">
+                        {pattern.pattern.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {pattern.attempts} quiz attempts
+                      </div>
+                    </div>
+                    <div className="bg-green-100 text-green-800 rounded-full px-3 py-1 text-sm font-medium">
+                      {pattern.accuracy.toFixed(0)}% accuracy
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="mt-4 text-center">
+              <p className="text-gray-600">
+                Continue practicing to improve your pattern recognition skills!
+              </p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

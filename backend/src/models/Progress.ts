@@ -1,12 +1,11 @@
 import mongoose, { Document, Schema, Types } from 'mongoose';
-import { IUser } from './User';
-import { IQuizQuestion } from './Quiz';
-import { IPattern } from './Pattern';
+
 
 interface IPatternProgress {
   patternId: string;
   completed: boolean;
   lastAccessed: Date;
+  viewCount: number; // How many times the user has viewed this pattern
 }
 
 interface IQuizAttempt {
@@ -14,15 +13,19 @@ interface IQuizAttempt {
   selectedAnswer: string;
   correct: boolean;
   timestamp: Date;
+  patternTested: string; // The pattern related to this question
 }
 
 export interface IProgress extends Document {
-  user: Types.ObjectId;  // Changed this line to use Types.ObjectId
+  user: Types.ObjectId;
   patternsProgress: IPatternProgress[];
   quizAttempts: IQuizAttempt[];
   quizScore: number;
   totalPatternsViewed: number;
   lastActive: Date;
+  // New fields
+  correctQuizCount: number; // Total number of correct quiz answers
+  totalQuizAttempts: number; // Total number of quiz attempts
 }
 
 const patternProgressSchema = new Schema(
@@ -38,6 +41,10 @@ const patternProgressSchema = new Schema(
     lastAccessed: {
       type: Date,
       default: Date.now
+    },
+    viewCount: {
+      type: Number,
+      default: 1
     }
   },
   { _id: false }
@@ -60,6 +67,10 @@ const quizAttemptSchema = new Schema(
     timestamp: {
       type: Date,
       default: Date.now
+    },
+    patternTested: {
+      type: String,
+      default: ''
     }
   },
   { _id: false }
@@ -68,7 +79,7 @@ const quizAttemptSchema = new Schema(
 const progressSchema = new Schema<IProgress>(
   {
     user: {
-      type: Schema.Types.ObjectId as any,  // Added 'as any' to suppress type error
+      type: Schema.Types.ObjectId as any,
       ref: 'User',
       required: true,
       unique: true
@@ -86,6 +97,15 @@ const progressSchema = new Schema<IProgress>(
     lastActive: {
       type: Date,
       default: Date.now
+    },
+    // New fields
+    correctQuizCount: {
+      type: Number,
+      default: 0
+    },
+    totalQuizAttempts: {
+      type: Number,
+      default: 0
     }
   },
   {

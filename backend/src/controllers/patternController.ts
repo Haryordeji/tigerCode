@@ -41,18 +41,20 @@ export const getPattern = asyncHandler(async (req: Request, res: Response) => {
       );
 
       if (patternProgressIndex === -1) {
-        // Add pattern to progress
+        // Add pattern to progress if it's the first time viewing
         progress.patternsProgress.push({
           patternId: pattern.id,
           completed: false,
-          lastAccessed: new Date()
+          lastAccessed: new Date(),
+          viewCount: 1
         });
         
         // Increment totalPatternsViewed if this is a new pattern
         progress.totalPatternsViewed += 1;
       } else {
-        // Update lastAccessed
+        // Update lastAccessed and increment viewCount
         progress.patternsProgress[patternProgressIndex].lastAccessed = new Date();
+        progress.patternsProgress[patternProgressIndex].viewCount += 1;
       }
 
       // Update lastActive
@@ -60,6 +62,23 @@ export const getPattern = asyncHandler(async (req: Request, res: Response) => {
 
       // Save progress
       await progress.save();
+    } else {
+      // Create new progress record if it doesn't exist
+      await Progress.create({
+        user: userId,
+        patternsProgress: [{
+          patternId: pattern.id,
+          completed: false,
+          lastAccessed: new Date(),
+          viewCount: 1
+        }],
+        quizAttempts: [],
+        quizScore: 0,
+        totalPatternsViewed: 1,
+        lastActive: new Date(),
+        correctQuizCount: 0,
+        totalQuizAttempts: 0
+      });
     }
   }
 
@@ -94,7 +113,9 @@ export const completePattern = asyncHandler(async (req: Request, res: Response) 
       patternsProgress: [],
       quizAttempts: [],
       quizScore: 0,
-      totalPatternsViewed: 0
+      totalPatternsViewed: 0,
+      correctQuizCount: 0,
+      totalQuizAttempts: 0
     });
   }
 
@@ -108,7 +129,8 @@ export const completePattern = asyncHandler(async (req: Request, res: Response) 
     progress.patternsProgress.push({
       patternId: pattern.id,
       completed: true,
-      lastAccessed: new Date()
+      lastAccessed: new Date(),
+      viewCount: 1
     });
     
     // Increment totalPatternsViewed if this is a new pattern
@@ -157,11 +179,30 @@ export const getPatternProgress = asyncHandler(async (req: Request, res: Respons
     });
   }
 
+  // Calculate completion stats
+  const completedPatterns = progress.patternsProgress.filter(p => p.completed).length;
+  const completionRate = progress.patternsProgress.length > 0 
+    ? (completedPatterns / progress.patternsProgress.length) * 100 
+    : 0;
+
+  // Get most viewed patterns
+  const mostViewedPatterns = [...progress.patternsProgress]
+    .sort((a, b) => b.viewCount - a.viewCount)
+    .slice(0, 3)
+    .map(p => ({
+      patternId: p.patternId,
+      viewCount: p.viewCount,
+      completed: p.completed
+    }));
+
   res.status(200).json({
     success: true,
     data: {
       patternsProgress: progress.patternsProgress,
-      totalPatternsViewed: progress.totalPatternsViewed
+      totalPatternsViewed: progress.totalPatternsViewed,
+      completedPatterns,
+      completionRate,
+      mostViewedPatterns
     }
   });
 });
