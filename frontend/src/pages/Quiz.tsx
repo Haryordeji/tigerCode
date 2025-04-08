@@ -476,7 +476,7 @@ export const Quiz = () => {
               
               {answerResult.patternTested && (
                 <Link 
-                  to={`/patterns/${answerResult.patternTested}`}
+                  to={`/patterns/${answerResult.patternTested.toLowerCase().replace(/\s+/g, "-")}`}
                   className="text-tiger-orange hover:underline"
                 >
                   Learn more about {answerResult.patternTested.split('-').map(
