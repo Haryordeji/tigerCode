@@ -25,14 +25,14 @@ export const Diagnostic = () => {
     explanation: string;
     patternTested: string;
   } | null>(null);
-  const [diagnosticProgress, setDiagnosticProgress] = useState<DiagnosticProgressData | null>(null);
+  const [, setDiagnosticProgress] = useState<DiagnosticProgressData | null>(null);
   const [completedQuestions, setCompletedQuestions] = useState<Map<string, DiagnosticAttempt>>(new Map());
   
   const { user } = useAuth();
   const navigate = useNavigate();
   
   // Session stats
-  const [sessionStats, setSessionStats] = useState({
+  const [, setSessionStats] = useState({
     correct: 0,
     incorrect: 0,
     patternStats: {} as Record<string, { correct: number, incorrect: number }>

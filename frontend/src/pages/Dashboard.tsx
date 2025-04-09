@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { getUserDashboard, getQuizSummary, getDiagnosticProgress, DashboardData, QuizSummary, DiagnosticProgressData } from '../services/dataService';
 
 export const Dashboard = () => {
-  const { user, diagnosticCompleted, checkingDiagnostic } = useAuth();
+  const { diagnosticCompleted, checkingDiagnostic } = useAuth();
   const [data, setData] = useState<DashboardData | null>(null);
   const [quizSummary, setQuizSummary] = useState<QuizSummary | null>(null);
   const [diagnosticData, setDiagnosticData] = useState<DiagnosticProgressData | null>(null);
