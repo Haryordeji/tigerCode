@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import { getQuizQuestions, QuizQuestion } from '../services/dataService';
+import { getQuizQuestions, submitQuizAnswer, getQuizProgress, QuizQuestion, QuizAttempt, QuizProgressData } from '../services/dataService';
+import { useAuth } from '../contexts/AuthContext';
+import { Link } from 'react-router-dom';
 
 export const Quiz = () => {
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
@@ -9,16 +11,75 @@ export const Quiz = () => {
   const [score, setScore] = useState(0);
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [answerResult, setAnswerResult] = useState<{
+    isCorrect: boolean;
+    explanation: string;
+    patternTested: string;
+  } | null>(null);
+  const [quizProgress, setQuizProgress] = useState<QuizProgressData | null>(null);
+  const [completedQuestions, setCompletedQuestions] = useState<Map<string, QuizAttempt>>(new Map());
+  
+  const { user } = useAuth();
+  
+  // Track correct/incorrect for this session
+  const [sessionStats, setSessionStats] = useState({
+    correct: 0,
+    incorrect: 0,
+    patternStats: {} as Record<string, { correct: number, incorrect: number }>
+  });
 
   useEffect(() => {
-    setLoading(true);
-    
-    setTimeout(() => {
-      const quizQuestions = getQuizQuestions();
-      setQuestions(quizQuestions);
-      setLoading(false);
-    }, 300);
-  }, []);
+    const fetchQuizData = async () => {
+      try {
+        setLoading(true);
+        
+        // Get all quiz questions
+        const quizQuestions = await getQuizQuestions();
+        setQuestions(quizQuestions);
+        
+        // If user is logged in, get their quiz progress
+        if (user) {
+          try {
+            const progress = await getQuizProgress();
+            setQuizProgress(progress);
+            
+            // Create a map of completed questions
+            const completedMap = new Map<string, QuizAttempt>();
+            progress.quizAttempts.forEach(attempt => {
+              completedMap.set(attempt.questionId, attempt);
+            });
+            setCompletedQuestions(completedMap);
+            
+            // Set current score
+            setScore(progress.correctQuizCount);
+            
+            // Find the first unanswered question
+            if (quizQuestions.length > 0 && progress.quizAttempts.length > 0) {
+              const answeredIds = new Set(progress.quizAttempts.map(a => a.questionId));
+              const firstUnansweredIndex = quizQuestions.findIndex(q => !answeredIds.has(q.id));
+              
+              if (firstUnansweredIndex !== -1) {
+                setCurrentQuestionIndex(firstUnansweredIndex);
+              } else {
+                // All questions have been answered - show the first one
+                setCurrentQuestionIndex(0);
+              }
+            }
+          } catch (err) {
+            console.error('Failed to load quiz progress:', err);
+          }
+        }
+      } catch (err) {
+        setError('Failed to load quiz questions. Please try again later.');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchQuizData();
+  }, [user]);
 
   const currentQuestion = questions[currentQuestionIndex];
 
@@ -26,21 +87,161 @@ export const Quiz = () => {
     setSelectedOption(optionId);
   };
 
-  const handleCheckAnswer = () => {
+  const handleCheckAnswer = async () => {
+    if (!selectedOption || !currentQuestion) return;
+    
     setShowAnswer(true);
-    if (selectedOption === currentQuestion.correctAnswer) {
-      setScore(score + 1);
+    
+    try {
+      if (user) {
+        // If logged in, submit answer to API
+        const result = await submitQuizAnswer(currentQuestion.id, selectedOption);
+        
+        // Update answer result state
+        setAnswerResult({
+          isCorrect: result.isCorrect,
+          explanation: result.explanation,
+          patternTested: result.patternTested
+        });
+        
+        // Update completedQuestions map
+        setCompletedQuestions(prev => {
+          const newMap = new Map(prev);
+          newMap.set(currentQuestion.id, {
+            questionId: currentQuestion.id,
+            selectedAnswer: selectedOption,
+            correct: result.isCorrect,
+            timestamp: new Date(),
+            patternTested: result.patternTested
+          });
+          return newMap;
+        });
+        
+        // Update session stats
+        setSessionStats(prev => {
+          const newStats = { ...prev };
+          
+          // Update overall correct/incorrect count
+          if (result.isCorrect) {
+            newStats.correct += 1;
+            setScore(score + 1);
+          } else {
+            newStats.incorrect += 1;
+          }
+          
+          // Update pattern-specific stats
+          if (result.patternTested) {
+            if (!newStats.patternStats[result.patternTested]) {
+              newStats.patternStats[result.patternTested] = { correct: 0, incorrect: 0 };
+            }
+            
+            if (result.isCorrect) {
+              newStats.patternStats[result.patternTested].correct += 1;
+            } else {
+              newStats.patternStats[result.patternTested].incorrect += 1;
+            }
+          }
+          
+          return newStats;
+        });
+      } else {
+        // If not logged in, check answer locally
+        const isCorrect = selectedOption === currentQuestion.correctAnswer;
+        
+        // Find pattern tested
+        const correctOption = currentQuestion.options.find(
+          opt => opt.id === currentQuestion.correctAnswer
+        );
+        const patternTested = correctOption ? correctOption.pattern : '';
+        
+        setAnswerResult({
+          isCorrect,
+          explanation: currentQuestion.explanation,
+          patternTested
+        });
+        
+        // Update completedQuestions map (locally)
+        setCompletedQuestions(prev => {
+          const newMap = new Map(prev);
+          newMap.set(currentQuestion.id, {
+            questionId: currentQuestion.id,
+            selectedAnswer: selectedOption,
+            correct: isCorrect,
+            timestamp: new Date(),
+            patternTested
+          });
+          return newMap;
+        });
+        
+        // Update session stats (local only)
+        setSessionStats(prev => {
+          const newStats = { ...prev };
+          
+          if (isCorrect) {
+            newStats.correct += 1;
+            setScore(score + 1);
+          } else {
+            newStats.incorrect += 1;
+          }
+          
+          if (patternTested) {
+            if (!newStats.patternStats[patternTested]) {
+              newStats.patternStats[patternTested] = { correct: 0, incorrect: 0 };
+            }
+            
+            if (isCorrect) {
+              newStats.patternStats[patternTested].correct += 1;
+            } else {
+              newStats.patternStats[patternTested].incorrect += 1;
+            }
+          }
+          
+          return newStats;
+        });
+      }
+    } catch (err) {
+      console.error('Failed to submit answer:', err);
+      // Fallback to local checking if API fails
+      const isCorrect = selectedOption === currentQuestion.correctAnswer;
+      
+      // Find pattern tested
+      const correctOption = currentQuestion.options.find(
+        opt => opt.id === currentQuestion.correctAnswer
+      );
+      const patternTested = correctOption ? correctOption.pattern : '';
+      
+      setAnswerResult({
+        isCorrect,
+        explanation: currentQuestion.explanation,
+        patternTested
+      });
+      
+      if (isCorrect) {
+        setScore(score + 1);
+        setSessionStats(prev => ({
+          ...prev,
+          correct: prev.correct + 1
+        }));
+      } else {
+        setSessionStats(prev => ({
+          ...prev,
+          incorrect: prev.incorrect + 1
+        }));
+      }
     }
   };
 
   const handleNextQuestion = () => {
     setSelectedOption(null);
     setShowAnswer(false);
+    setAnswerResult(null);
     
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
       setQuizCompleted(true);
+      // when done, redirect to dashboard page
+      window.location.href = '/dashboard';
     }
   };
 
@@ -50,6 +251,28 @@ export const Quiz = () => {
     setShowAnswer(false);
     setScore(0);
     setQuizCompleted(false);
+    setAnswerResult(null);
+    // Reset session stats
+    setSessionStats({
+      correct: 0,
+      incorrect: 0,
+      patternStats: {}
+    });
+  };
+
+  // Jump to a specific question
+  const jumpToQuestion = (index: number) => {
+    if (index >= 0 && index < questions.length) {
+      setCurrentQuestionIndex(index);
+      setSelectedOption(null);
+      setShowAnswer(false);
+      setAnswerResult(null);
+    }
+  };
+
+  // Get the answer status for a specific question
+  const getQuestionStatus = (questionId: string) => {
+    return completedQuestions.get(questionId);
   };
 
   if (loading) {
@@ -60,25 +283,120 @@ export const Quiz = () => {
     );
   }
 
-  if (quizCompleted) {
+  if (error) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-12 pt-24">
-        <div className="bg-white rounded-xl shadow-lg p-8 text-center">
-          <h1 className="text-3xl font-bold text-tiger-orange mb-6">Quiz Completed!</h1>
-          <p className="text-2xl mb-4">Your Score: <span className="font-bold">{score}/{questions.length}</span></p>
-          <p className="mb-8 text-gray-600">
-            {score === questions.length 
-              ? 'Perfect score! You\'re a pattern recognition master!' 
-              : score >= questions.length / 2 
-                ? 'Good job! You\'re getting the hang of pattern recognition.' 
-                : 'Keep practicing! Pattern recognition takes time to master.'}
-          </p>
-          <button 
-            onClick={handleRestartQuiz}
-            className="bg-tiger-orange text-black px-6 py-3 rounded-lg font-semibold hover:bg-opacity-90 transition-colors"
-          >
-            Restart Quiz
-          </button>
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+          <strong className="font-bold">Error:</strong>
+          <span className="block sm:inline"> {error}</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (quizCompleted) {
+    // Calculate stats for completed quiz
+    const totalAnswered = sessionStats.correct + sessionStats.incorrect;
+    const accuracy = totalAnswered > 0 ? Math.round((sessionStats.correct / totalAnswered) * 100) : 0;
+    
+    // Get pattern performance sorted by accuracy (highest first)
+    const patternPerformance = Object.entries(sessionStats.patternStats).map(([pattern, stats]) => {
+      const total = stats.correct + stats.incorrect;
+      const accuracy = total > 0 ? (stats.correct / total) * 100 : 0;
+      return {
+        pattern,
+        correct: stats.correct,
+        incorrect: stats.incorrect,
+        total,
+        accuracy
+      };
+    }).sort((a, b) => b.accuracy - a.accuracy);
+
+    useEffect(() => {
+      if (!user) {
+        setQuizProgress(null);
+        setCompletedQuestions(new Map());
+        
+      }
+    }, [user]);
+    
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-12 pt-24">
+        <div className="bg-white rounded-xl shadow-lg p-8">
+          <h1 className="text-3xl font-bold text-tiger-orange mb-6 text-center">Quiz Completed!</h1>
+          
+          <div className="mb-8 text-center">
+            <p className="text-2xl mb-2">Your Score: <span className="font-bold">{score}/{questions.length}</span></p>
+            <p className="text-gray-600">Accuracy: {accuracy}%</p>
+            
+            <div className="w-full bg-gray-200 rounded-full h-3 mt-4">
+              <div 
+                className={`h-3 rounded-full ${
+                  accuracy >= 70 ? 'bg-green-500' :
+                  accuracy >= 40 ? 'bg-tiger-orange' :
+                  'bg-red-500'
+                }`}
+                style={{ width: `${accuracy}%` }}
+              ></div>
+            </div>
+          </div>
+          
+          {patternPerformance.length > 0 && (
+            <div className="mb-8">
+              <h2 className="text-xl font-bold mb-4">Performance by Pattern</h2>
+              <div className="space-y-4">
+                {patternPerformance.map(pattern => (
+                  <div key={pattern.pattern} className="border-b pb-3">
+                    <div className="flex justify-between mb-1">
+                      <span className="font-medium">
+                        {pattern.pattern.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                      </span>
+                      <span className="text-gray-600">{Math.round(pattern.accuracy)}% correct</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className={`h-2 rounded-full ${
+                          pattern.accuracy >= 70 ? 'bg-green-500' :
+                          pattern.accuracy >= 40 ? 'bg-tiger-orange' :
+                          'bg-red-500'
+                        }`}
+                        style={{ width: `${pattern.accuracy}%` }}
+                      ></div>
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {pattern.correct} correct, {pattern.incorrect} incorrect
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          <div className="text-center">
+            <p className="mb-6 text-gray-600">
+              {accuracy === 100 
+                ? 'Perfect score! You\'re a pattern recognition master!' 
+                : accuracy >= 70 
+                  ? 'Great job! You\'re getting the hang of pattern recognition.' 
+                  : 'Keep practicing! Pattern recognition takes time to master.'}
+            </p>
+            
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <button 
+                onClick={handleRestartQuiz}
+                className="bg-tiger-orange text-black px-6 py-3 rounded-lg font-semibold hover:bg-opacity-90 transition-colors"
+              >
+                Restart Quiz
+              </button>
+              
+              <Link 
+                to="/dashboard"
+                className="bg-white text-tiger-orange border border-tiger-orange px-6 py-3 rounded-lg font-semibold hover:bg-tiger-orange hover:text-white transition-colors"
+              >
+                Go to Dashboard
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -149,14 +467,37 @@ export const Quiz = () => {
           </div>
         </div>
 
-        {showAnswer && (
+        {showAnswer && answerResult && (
           <div className="p-6 bg-gray-50 border-t">
+            <div className="flex items-center mb-4">
+              <div className={`px-3 py-1 rounded-full text-sm font-medium mr-3 ${
+                answerResult.isCorrect ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+              }`}>
+                {answerResult.isCorrect ? 'Correct!' : 'Incorrect'}
+              </div>
+              
+              {answerResult.patternTested && (
+                <Link 
+                  to={`/patterns/${answerResult.patternTested.toLowerCase().replace(/\s+/g, "-")}`}
+                  className="text-tiger-orange hover:underline"
+                >
+                  Learn more about {answerResult.patternTested.split('-').map(
+                    word => word.charAt(0).toUpperCase() + word.slice(1)
+                  ).join(' ')}
+                </Link>
+              )}
+            </div>
+            
             <h3 className="text-lg font-semibold text-tiger-orange mb-2">Explanation</h3>
-            <p className="text-gray-700">{currentQuestion.explanation}</p>
+            <p className="text-gray-700">{answerResult.explanation}</p>
           </div>
         )}
 
-        <div className="p-6 bg-gray-50 border-t flex justify-end">
+        <div className="p-6 bg-gray-50 border-t flex justify-between items-center">
+          <div className="text-gray-600">
+            Current score: {score}/{quizProgress?.totalQuizAttempts! + 1 || completedQuestions.size + 1}
+          </div>
+          
           {!showAnswer ? (
             <button
               onClick={handleCheckAnswer}
@@ -179,6 +520,68 @@ export const Quiz = () => {
           )}
         </div>
       </div>
+      
+      {/* Completed Questions List */}
+      {completedQuestions.size > 0 && (
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
+          <div className="p-4 bg-gray-50 border-b">
+            <h3 className="font-semibold text-gray-700">Completed Questions</h3>
+          </div>
+          <div className="p-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {questions.map((question, index) => {
+                const attempt = getQuestionStatus(question.id);
+                const isActive = index === currentQuestionIndex;
+                
+                return (
+                  <button
+                    key={question.id}
+                    onClick={() => jumpToQuestion(index)}
+                    className={`text-left p-3 rounded-lg border ${
+                      attempt 
+                        ? attempt.correct 
+                          ? 'border-green-500 bg-green-50' 
+                          : 'border-red-500 bg-red-50'
+                        : 'border-gray-300 bg-gray-50'
+                    } ${
+                      isActive ? 'ring-2 ring-tiger-orange' : ''
+                    } hover:shadow-md transition-shadow`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium">Question {index + 1}</span>
+                      {attempt && (
+                        <span className={`text-xs px-2 py-1 rounded-full ${
+                          attempt.correct 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {attempt.correct ? 'Correct' : 'Incorrect'}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-gray-600 truncate mt-1">{question.question}</p>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {currentQuestionIndex > 0 && (
+        <div className="flex justify-between items-center">
+          <div className="text-gray-600">
+            Session progress: {sessionStats.correct} correct, {sessionStats.incorrect} incorrect
+          </div>
+          
+          <button 
+            onClick={handleRestartQuiz}
+            className="text-tiger-orange hover:underline"
+          >
+            Restart Quiz
+          </button>
+        </div>
+      )}
     </div>
   );
 };

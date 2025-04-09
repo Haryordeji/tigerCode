@@ -1,0 +1,108 @@
+{
+    "questions": [
+      {
+        "id": "q1",
+        "question": "Finding pairs that sum to a target in a sorted array",
+        "description": "Given a sorted array of integers and a target sum, find a pair of numbers that add up to the target sum.",
+        "options": [
+          { "id": "a", "pattern": "Two Pointers" },
+          { "id": "b", "pattern": "Sliding Window" },
+          { "id": "c", "pattern": "Binary Search" },
+          { "id": "d", "pattern": "Dynamic Programming" }
+        ],
+        "correctAnswer": "a",
+        "explanation": "The Two Pointers pattern is ideal for this problem because we can start with pointers at both ends of the sorted array and move them based on whether their sum is less than or greater than the target."
+      },
+      {
+        "id": "q2",
+        "question": "Finding the longest substring without repeating characters",
+        "description": "Given a string, find the length of the longest substring without repeating characters.",
+        "options": [
+          { "id": "a", "pattern": "Two Pointers" },
+          { "id": "b", "pattern": "Sliding Window" },
+          { "id": "c", "pattern": "Depth-First Search" },
+          { "id": "d", "pattern": "Backtracking" }
+        ],
+        "correctAnswer": "b",
+        "explanation": "The Sliding Window pattern is perfect for this problem because we need to track a window of characters that contains no duplicates, expanding and contracting the window as needed."
+      },
+      {
+        "id": "q3",
+        "question": "Finding the square root of a number without using built-in functions",
+        "description": "Implement a function to calculate the square root of a number without using any built-in square root function.",
+        "options": [
+          { "id": "a", "pattern": "Two Pointers" },
+          { "id": "b", "pattern": "Sliding Window" },
+          { "id": "c", "pattern": "Binary Search" },
+          { "id": "d", "pattern": "Dynamic Programming" }
+        ],
+        "correctAnswer": "c",
+        "explanation": "Binary Search is appropriate here because we can efficiently narrow down the range where the square root must lie by repeatedly checking the middle value."
+      },
+      {
+        "id": "q4",
+        "question": "Finding all possible combinations of elements that sum to a target",
+        "description": "Given an array of distinct integers and a target sum, find all unique combinations where the chosen numbers sum to the target.",
+        "options": [
+          { "id": "a", "pattern": "Greedy Algorithm" },
+          { "id": "b", "pattern": "Sliding Window" },
+          { "id": "c", "pattern": "Dynamic Programming" },
+          { "id": "d", "pattern": "Backtracking" }
+        ],
+        "correctAnswer": "d",
+        "explanation": "Backtracking is ideal for this problem because we need to explore all possible combinations, building partial solutions and abandoning them when they exceed the target sum."
+      },
+      {
+        "id": "q5",
+        "question": "Finding the minimum path sum in a grid",
+        "description": "Given a grid filled with numbers, find the path from top-left to bottom-right with the minimum sum of numbers along the path.",
+        "options": [
+          { "id": "a", "pattern": "Depth-First Search" },
+          { "id": "b", "pattern": "Breadth-First Search" },
+          { "id": "c", "pattern": "Dynamic Programming" },
+          { "id": "d", "pattern": "Greedy Algorithm" }
+        ],
+        "correctAnswer": "c",
+        "explanation": "Dynamic Programming is perfect for this problem because the minimum path to any cell depends on the minimum paths to the cells above and to the left, creating overlapping subproblems."
+      },
+      {
+        "id": "q6",
+        "question": "Checking if a string is a palindrome",
+        "description": "Given a string, determine if it is a palindrome, considering only alphanumeric characters and ignoring cases.",
+        "options": [
+          { "id": "a", "pattern": "Two Pointers" },
+          { "id": "b", "pattern": "Stack" },
+          { "id": "c", "pattern": "Sliding Window" },
+          { "id": "d", "pattern": "Recursion" }
+        ],
+        "correctAnswer": "a",
+        "explanation": "The Two Pointers pattern is ideal for palindrome checking because we can compare characters from both ends of the string, moving inward until the pointers meet in the middle."
+      },
+      {
+        "id": "q7",
+        "question": "Finding the kth largest element in an array",
+        "description": "Given an unsorted array, find the kth largest element without sorting the entire array.",
+        "options": [
+          { "id": "a", "pattern": "Heap (Priority Queue)" },
+          { "id": "b", "pattern": "Quick Select" },
+          { "id": "c", "pattern": "Binary Search" },
+          { "id": "d", "pattern": "Dynamic Programming" }
+        ],
+        "correctAnswer": "b",
+        "explanation": "Quick Select is a variation of the Quick Sort algorithm that efficiently finds the kth smallest/largest element in an unsorted array with an average time complexity of O(n)."
+      },
+      {
+        "id": "q8",
+        "question": "Detecting a cycle in a linked list",
+        "description": "Given a linked list, determine if it has a cycle (i.e., whether a node in the list points to a previously visited node).",
+        "options": [
+          { "id": "a", "pattern": "Two Pointers (Fast & Slow)" },
+          { "id": "b", "pattern": "Hash Set" },
+          { "id": "c", "pattern": "Stack" },
+          { "id": "d", "pattern": "Breadth-First Search" }
+        ],
+        "correctAnswer": "a",
+        "explanation": "The Two Pointers pattern (specifically the fast and slow pointer technique, also known as Floyd's Cycle-Finding Algorithm) is perfect for detecting cycles in a linked list. The fast pointer moves twice as fast as the slow pointer, and if there's a cycle, they will eventually meet."
+      }
+    ]
+  }

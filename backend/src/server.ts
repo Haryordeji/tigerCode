@@ -1,64 +1,26 @@
-// src/server.ts
-import express, { Request, Response } from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import pool from './config/db';
+import app from './app';
+import connectDB from './config/db';
+import { env } from './config/env';
+import logger from './utils/logger';
 
-dotenv.config();
+// Connect to MongoDB
+connectDB();
 
-const app = express();
-const PORT = process.env.PORT || 5001;
-
-app.use(cors());
-app.use(express.json());
-
-// Test database connection
-app.get('/api/health', async (req: Request, res: Response) => {
-  try {
-    const result = await pool.query('SELECT NOW()');
-    res.json({
-      status: 'ok',
-      message: 'Server is running',
-      database: 'connected',
-      timestamp: result.rows[0].now
-    });
-  } catch (error) {
-    console.error('Database connection error:', error);
-    res.status(500).json({
-      status: 'error',
-      message: 'Server is running but database connection failed',
-      error: error instanceof Error ? error.message : String(error)
-    });
-  }
+// Start server
+const server = app.listen(env.PORT, () => {
+  logger.info(`Server running in ${env.NODE_ENV} mode on port ${env.PORT}`);
 });
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('TigerCode API is running with TypeScript!');
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (err: Error) => {
+  logger.error(`Unhandled Rejection: ${err.message}`);
+  // Close server & exit process
+  server.close(() => process.exit(1));
 });
 
-const server = app.listen(PORT, async () => {
-  try {
-    const client = await pool.connect();
-    console.log('Connected to database successfully');
-    client.release();
-    
-    console.log(`Server is running on http://localhost:${PORT}`);
-  } catch (error) {
-    console.error('Failed to connect to the database:', error);
-    console.log('Server is running, but database connection failed');
-  }
+// Handle uncaught exceptions
+process.on('uncaughtException', (err: Error) => {
+  logger.error(`Uncaught Exception: ${err.message}`);
+  // Exit process
+  process.exit(1);
 });
-
-// Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM signal received: closing HTTP server');
-  server.close(async () => {
-    console.log('HTTP server closed');
-    // Close database pool
-    await pool.end();
-    console.log('Database connections closed');
-    process.exit(0);
-  });
-});
-
-export default app;

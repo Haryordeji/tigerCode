@@ -1,0 +1,160 @@
+{
+    "questions": [
+      {
+        "id": "diag-q1",
+        "question": "What data structure would you use to implement a First-In-First-Out (FIFO) behavior?",
+        "description": "You need to process items in the exact order they were added.",
+        "options": [
+          { "id": "a", "pattern": "Queue" },
+          { "id": "b", "pattern": "Stack" },
+          { "id": "c", "pattern": "Hash Table" },
+          { "id": "d", "pattern": "Binary Search Tree" }
+        ],
+        "correctAnswer": "a",
+        "explanation": "A Queue is the appropriate data structure for FIFO (First-In-First-Out) behavior where elements are removed in the same order they were added."
+      },
+      {
+        "id": "diag-q2",
+        "question": "Finding the maximum subarray sum of fixed size k",
+        "description": "Given an array of integers and a number k, find the maximum sum of a subarray of size k.",
+        "options": [
+          { "id": "a", "pattern": "Two Pointers" },
+          { "id": "b", "pattern": "Sliding Window" },
+          { "id": "c", "pattern": "Dynamic Programming" },
+          { "id": "d", "pattern": "Binary Search" }
+        ],
+        "correctAnswer": "b",
+        "explanation": "The Sliding Window pattern is perfect for this problem. We can maintain a window of size k and slide it through the array to find the maximum sum."
+      },
+      {
+        "id": "diag-q3",
+        "question": "What approach would you use to find if a linked list has a cycle?",
+        "description": "Given a linked list, determine if it has a cycle (i.e., whether a node in the list points to a previously visited node).",
+        "options": [
+          { "id": "a", "pattern": "Breadth-First Search" },
+          { "id": "b", "pattern": "Hash Set" },
+          { "id": "c", "pattern": "Two Pointers (Fast & Slow)" },
+          { "id": "d", "pattern": "Stack" }
+        ],
+        "correctAnswer": "c",
+        "explanation": "The Two Pointers approach (specifically Floyd's Cycle-Finding Algorithm) is ideal for detecting cycles in a linked list. The fast pointer moves twice as fast as the slow pointer, and if there's a cycle, they will eventually meet."
+      },
+      {
+        "id": "diag-q4",
+        "question": "Finding if a number is a power of two",
+        "description": "Given an integer, determine if it's a power of two (e.g., 1, 2, 4, 8, 16, ...).",
+        "options": [
+          { "id": "a", "pattern": "Dynamic Programming" },
+          { "id": "b", "pattern": "Bit Manipulation" },
+          { "id": "c", "pattern": "Mathematical Formula" },
+          { "id": "d", "pattern": "Recursion" }
+        ],
+        "correctAnswer": "b",
+        "explanation": "Bit manipulation is the most efficient approach for this problem. A number that is a power of 2 has exactly one bit set to 1 in its binary representation. We can check this with the expression: n > 0 && (n & (n-1)) == 0."
+      },
+      {
+        "id": "diag-q5",
+        "question": "Finding the first and last occurrence of an element in a sorted array",
+        "description": "Given a sorted array of integers and a target value, find the first and last position of the target in the array.",
+        "options": [
+          { "id": "a", "pattern": "Linear Search" },
+          { "id": "b", "pattern": "Binary Search" },
+          { "id": "c", "pattern": "Two Pointers" },
+          { "id": "d", "pattern": "Sliding Window" }
+        ],
+        "correctAnswer": "b",
+        "explanation": "Binary Search is the optimal solution for this problem since the array is sorted. We can modify the standard binary search to find the leftmost and rightmost occurrences of the target value."
+      },
+      {
+        "id": "diag-q6",
+        "question": "Finding all possible subsets of a set",
+        "description": "Given a set of distinct integers, return all possible subsets (the power set).",
+        "options": [
+          { "id": "a", "pattern": "Dynamic Programming" },
+          { "id": "b", "pattern": "Depth-First Search" },
+          { "id": "c", "pattern": "Backtracking" },
+          { "id": "d", "pattern": "Greedy Algorithm" }
+        ],
+        "correctAnswer": "c",
+        "explanation": "Backtracking is ideal for generating all possible subsets. We can recursively include or exclude each element to generate all possible combinations."
+      },
+      {
+        "id": "diag-q7",
+        "question": "Finding the shortest path in an unweighted graph",
+        "description": "Given an unweighted graph and two nodes, find the shortest path between them.",
+        "options": [
+          { "id": "a", "pattern": "Depth-First Search" },
+          { "id": "b", "pattern": "Breadth-First Search" },
+          { "id": "c", "pattern": "Dijkstra's Algorithm" },
+          { "id": "d", "pattern": "Bellman-Ford Algorithm" }
+        ],
+        "correctAnswer": "b",
+        "explanation": "Breadth-First Search (BFS) is the most efficient algorithm for finding the shortest path in an unweighted graph, as it explores nodes level by level from the source."
+      },
+      {
+        "id": "diag-q8",
+        "question": "What approach would you use to solve the 'Climbing Stairs' problem?",
+        "description": "You're climbing a staircase with n steps. Each time you can climb 1 or 2 steps. How many distinct ways can you climb to the top?",
+        "options": [
+          { "id": "a", "pattern": "Greedy Algorithm" },
+          { "id": "b", "pattern": "Dynamic Programming" },
+          { "id": "c", "pattern": "Binary Search" },
+          { "id": "d", "pattern": "Backtracking" }
+        ],
+        "correctAnswer": "b",
+        "explanation": "Dynamic Programming is perfect for this problem because the number of ways to reach step n depends on the number of ways to reach steps n-1 and n-2, creating overlapping subproblems."
+      },
+      {
+        "id": "diag-q9",
+        "question": "Finding all anagrams of a pattern in a string",
+        "description": "Given a string and a pattern, find all occurrences of anagrams of the pattern in the string.",
+        "options": [
+          { "id": "a", "pattern": "Two Pointers" },
+          { "id": "b", "pattern": "Sliding Window" },
+          { "id": "c", "pattern": "Depth-First Search" },
+          { "id": "d", "pattern": "Dynamic Programming" }
+        ],
+        "correctAnswer": "b",
+        "explanation": "The Sliding Window pattern with a character frequency counter is ideal for finding anagrams in a string. We can use a fixed-size window equal to the pattern length and check if the window contains the same characters as the pattern."
+      },
+      {
+        "id": "diag-q10",
+        "question": "What technique would you use to reverse a linked list?",
+        "description": "Given the head of a singly linked list, reverse the list and return the reversed list.",
+        "options": [
+          { "id": "a", "pattern": "Two Pointers" },
+          { "id": "b", "pattern": "Stack" },
+          { "id": "c", "pattern": "Recursion" },
+          { "id": "d", "pattern": "All of the above" }
+        ],
+        "correctAnswer": "d",
+        "explanation": "A linked list can be reversed using any of these three approaches: Two Pointers (iteratively), Stack (store all nodes then pop them), or Recursion (reverse the rest of the list, then add the current node to the end)."
+      },
+      {
+        "id": "diag-q11",
+        "question": "Which data structure would you use to efficiently find the k most frequent elements?",
+        "description": "Given an array of integers, find the k most frequent elements.",
+        "options": [
+          { "id": "a", "pattern": "Hash Map" },
+          { "id": "b", "pattern": "Priority Queue (Heap)" },
+          { "id": "c", "pattern": "Binary Search Tree" },
+          { "id": "d", "pattern": "Both A and B" }
+        ],
+        "correctAnswer": "d",
+        "explanation": "The most efficient approach uses both a Hash Map to count frequencies and a Priority Queue (Min Heap) to track the k most frequent elements. The Hash Map counts occurrences, and the heap maintains the top k elements."
+      },
+      {
+        "id": "diag-q12",
+        "question": "What approach would you use to check if a binary tree is a valid Binary Search Tree (BST)?",
+        "description": "Given a binary tree, determine if it is a valid binary search tree (BST).",
+        "options": [
+          { "id": "a", "pattern": "Breadth-First Search" },
+          { "id": "b", "pattern": "In-order Traversal" },
+          { "id": "c", "pattern": "Recursive Validation with Range" },
+          { "id": "d", "pattern": "Both B and C" }
+        ],
+        "correctAnswer": "d",
+        "explanation": "Both in-order traversal and recursive validation with range can be used to verify a BST. In-order traversal of a valid BST produces sorted elements, while recursive validation checks if each node's value falls within a valid range based on its position in the tree."
+      }
+    ]
+  }

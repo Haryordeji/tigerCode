@@ -11,7 +11,8 @@ export const Home = () => {
           <p className="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto mb-12">
             Use our platform to develop pattern recogntion skills needed to get you started with interview-style questions.
           </p>
-          <button className="bg-tiger-orange text-black px-8 py-4 rounded-full text-lg font-semibold hover:bg-opacity-90 transition-colors">
+          <button className="bg-tiger-orange text-black px-8 py-4 rounded-full text-lg font-semibold hover:bg-opacity-90 transition-colors"
+          onClick={() => window.location.href = '/patterns'}>
             Start Learning Now
           </button>
         </div>
@@ -38,6 +39,15 @@ export const Home = () => {
                 <h3 className="text-xl font-semibold text-tiger-orange">AI Guidance</h3>
                 <p className="text-gray-300 mt-2">Detailed real time feedback from AI after each question</p>
               </div>
+            </div>
+          </div>
+          
+          {/* Developer Attribution */}
+          <div className="text-center mt-16">
+            <div className="inline-block py-2 px-4 bg-black text-white rounded-lg">
+              <p className="text-sm">
+                <span className="opacity-75">Developed by</span> <span className="font-medium text-tiger-orange">Brandon Ambetsa and Ayo Olusanya</span>
+              </p>
             </div>
           </div>
         </div>

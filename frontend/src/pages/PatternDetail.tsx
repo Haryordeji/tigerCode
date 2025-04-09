@@ -1,23 +1,67 @@
 import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { getPatternById, Pattern } from '../services/dataService';
+import { getPatternById, completePattern, getPatternProgress, Pattern } from '../services/dataService';
+import { useAuth } from '../contexts/AuthContext';
 
 export const PatternDetail = () => {
   const { patternId } = useParams<{ patternId: string }>();
   const [pattern, setPattern] = useState<Pattern | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [completed, setCompleted] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
-    setLoading(true);
-    
-    setTimeout(() => {
-      const patternData = getPatternById(patternId || '');
-      if (patternData) {
-        setPattern(patternData as Pattern);
+    const fetchPattern = async () => {
+      if (!patternId) return;
+      
+      try {
+        setLoading(true);
+        const patternData = await getPatternById(patternId);
+        setPattern(patternData);
+        
+        // If user is logged in, check if pattern is completed
+        if (user) {
+          try {
+            const progress = await getPatternProgress();
+            const patternProgress = progress.patternsProgress.find(p => p.patternId === patternId);
+            if (patternProgress) {
+              setCompleted(patternProgress.completed);
+            }
+          } catch (err) {
+            // Silently fail - we'll just show the pattern as not completed
+            console.error('Failed to fetch pattern progress:', err);
+          }
+        }
+      } catch (err) {
+        setError('Failed to load pattern details. Please try again later.');
+        console.error(err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
-    }, 300);
-  }, [patternId]);
+    };
+
+    fetchPattern();
+    
+    // Track view in analytics (if needed)
+    const trackPatternView = async () => {
+      // This is where you could add additional tracking logic if needed
+      console.log(`Pattern viewed: ${patternId}`);
+    };
+    
+    trackPatternView();
+  }, [patternId, user]); // Re-run if patternId or user changes
+
+  const handleMarkComplete = async () => {
+    if (!patternId || !user) return;
+    
+    try {
+      const result = await completePattern(patternId);
+      setCompleted(result.completed);
+    } catch (err) {
+      console.error('Failed to mark pattern as completed:', err);
+    }
+  };
 
   if (loading) {
     return (
@@ -27,18 +71,31 @@ export const PatternDetail = () => {
     );
   }
 
-  if (!pattern) {
+  if (error || !pattern) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-12">
         <h1 className="text-3xl font-bold text-tiger-orange">Pattern Not Found</h1>
-        <p className="mt-4">The pattern you're looking for doesn't exist.</p>
+        <p className="mt-4">{error || "The pattern you're looking for doesn't exist."}</p>
       </div>
     );
   }
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12 pt-24">
-      <h1 className="text-4xl font-bold text-tiger-orange mb-6">{pattern.title}</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-4xl font-bold text-tiger-orange">{pattern.title}</h1>
+        {user && (
+          <button 
+            onClick={handleMarkComplete}
+            disabled={completed}
+            className={`px-4 py-2 rounded-lg ${completed 
+              ? 'bg-green-100 text-green-800 cursor-default' 
+              : 'bg-tiger-orange text-black hover:bg-opacity-90'}`}
+          >
+            {completed ? 'Completed' : 'Mark as Complete'}
+          </button>
+        )}
+      </div>
       
       {/* Pattern Description */}
       <div className="mb-10">
