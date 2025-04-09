@@ -123,14 +123,12 @@ export const submitDiagnosticAnswer = asyncHandler(async (req: Request, res: Res
 
   // Check if diagnostic is completed (all questions answered)
   const totalQuestions = await DiagnosticQuestion.countDocuments();
-  console.log(`Total diagnostic questions: ${totalQuestions}`);
   
   if (totalQuestions > 0) {
     // Get unique question IDs from attempts
     const attemptedQuestionIds = new Set(
       progress.diagnosticAttempts.map(a => a.questionId)
     );
-    console.log(`Attempted questions: ${attemptedQuestionIds.size}`);
     
     // If all questions have been attempted, mark diagnostic as completed
     if (attemptedQuestionIds.size >= totalQuestions) {

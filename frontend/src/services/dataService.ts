@@ -162,7 +162,8 @@ const apiRequest = async <T>(endpoint: string, options?: RequestInit): Promise<T
       headers['Authorization'] = `Bearer ${token}`;
     }
     
-    const response = await fetch(`/api${endpoint}`, {
+    const baseUrl = import.meta.env.VITE_API_URL || '';
+    const response = await fetch(`${baseUrl}/api${endpoint}`, {
       ...options,
       headers: {
         ...headers,
