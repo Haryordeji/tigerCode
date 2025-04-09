@@ -11,7 +11,8 @@ export const Home = () => {
           <p className="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto mb-12">
             Use our platform to develop pattern recogntion skills needed to get you started with interview-style questions.
           </p>
-          <button className="bg-tiger-orange text-black px-8 py-4 rounded-full text-lg font-semibold hover:bg-opacity-90 transition-colors">
+          <button className="bg-tiger-orange text-black px-8 py-4 rounded-full text-lg font-semibold hover:bg-opacity-90 transition-colors"
+          onClick={() => window.location.href = '/patterns'}>
             Start Learning Now
           </button>
         </div>

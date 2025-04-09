@@ -230,7 +230,6 @@ export const getQuizSummary = asyncHandler(async (req: Request, res: Response): 
   
   // Get top 3 strongest patterns
   const topPatterns = Object.entries(patternStats)
-    .filter(([_, stats]) => stats.total >= 2) // Only include patterns with at least 2 attempts
     .map(([pattern, stats]) => ({
       pattern,
       accuracy: stats.total > 0 ? (stats.correct / stats.total) * 100 : 0,

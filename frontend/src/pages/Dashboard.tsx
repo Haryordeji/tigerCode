@@ -68,16 +68,7 @@ export const Dashboard = () => {
       <h1 className="text-3xl font-bold text-tiger-orange mb-8">Your Dashboard</h1>
       
       {/* Summary Stats */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <h3 className="text-lg font-semibold text-gray-500 mb-2">Patterns Viewed</h3>
-          <p className="text-3xl font-bold">{data.totalPatternsViewed}</p>
-          {data.completionPercentage > 0 && (
-            <p className="text-sm text-gray-500">
-              {data.completionPercentage.toFixed(1)}% of available patterns
-            </p>
-          )}
-        </div>
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12 mx-auto max-w-5xl">
         
         <div className="bg-white rounded-xl shadow-md p-6">
           <h3 className="text-lg font-semibold text-gray-500 mb-2">Patterns Completed</h3>
@@ -105,77 +96,8 @@ export const Dashboard = () => {
           </p>
         </div>
       </div>
-      
-      <div className="grid md:grid-cols-2 gap-8 mb-12">
-        {/* Most Viewed Patterns */}
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <h2 className="text-xl font-bold text-tiger-orange mb-4">Most Viewed Patterns</h2>
-          
-          {data.mostViewedPatterns && data.mostViewedPatterns.length > 0 ? (
-            <div className="space-y-3">
-              {data.mostViewedPatterns.map((pattern) => (
-                <div key={pattern.patternId} className="border-b pb-2">
-                  <div className="flex justify-between">
-                    <Link 
-                      to={`/patterns/${pattern.patternId}`}
-                      className="text-gray-800 hover:text-tiger-orange transition-colors"
-                    >
-                      {pattern.patternId.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-                    </Link>
-                    <span className="text-gray-500">{pattern.viewCount} views</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-500">No patterns viewed yet.</p>
-          )}
-          
-          <div className="mt-4">
-            <Link 
-              to="/patterns"
-              className="text-tiger-orange hover:underline font-medium"
-            >
-              View all patterns →
-            </Link>
-          </div>
-        </div>
-        
-        {/* Recently Viewed Patterns */}
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <h2 className="text-xl font-bold text-tiger-orange mb-4">Recently Viewed Patterns</h2>
-          
-          {data.recentPatterns && data.recentPatterns.length > 0 ? (
-            <div className="space-y-3">
-              {data.recentPatterns.map((pattern) => (
-                <div key={pattern.patternId} className="border-b pb-2">
-                  <div className="flex justify-between">
-                    <Link 
-                      to={`/patterns/${pattern.patternId}`}
-                      className="text-gray-800 hover:text-tiger-orange transition-colors"
-                    >
-                      {pattern.patternId.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-                    </Link>
-                    <div className="flex items-center">
-                      {pattern.completed && (
-                        <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded mr-2">
-                          Completed
-                        </span>
-                      )}
-                      <span className="text-gray-500 text-sm">
-                        {new Date(pattern.lastAccessed).toLocaleDateString()}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-500">No patterns viewed yet.</p>
-          )}
-        </div>
-      </div>
-      
+  
+
       <div className="grid md:grid-cols-2 gap-8">
         {/* Pattern Quiz Performance */}
         <div className="bg-white rounded-xl shadow-md p-6">
