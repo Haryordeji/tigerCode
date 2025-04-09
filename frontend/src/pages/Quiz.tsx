@@ -240,6 +240,8 @@ export const Quiz = () => {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
       setQuizCompleted(true);
+      // when done, redirect to dashboard page
+      window.location.href = '/dashboard';
     }
   };
 
@@ -493,7 +495,7 @@ export const Quiz = () => {
 
         <div className="p-6 bg-gray-50 border-t flex justify-between items-center">
           <div className="text-gray-600">
-            Current score: {score}/{quizProgress?.totalQuizAttempts || completedQuestions.size}
+            Current score: {score}/{quizProgress?.totalQuizAttempts! + 1 || completedQuestions.size + 1}
           </div>
           
           {!showAnswer ? (
