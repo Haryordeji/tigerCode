@@ -23,7 +23,7 @@ export const Register = () => {
     setPasswordError('');
     await register(name, email, password);
     if (!error) {
-      navigate('/');
+      navigate('/diagnostic');
     }
   };
 

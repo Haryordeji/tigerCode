@@ -36,6 +36,120 @@ export interface QuizQuestion {
   explanation: string;
 }
 
+export interface PatternProgress {
+  patternId: string;
+  completed: boolean;
+  lastAccessed: Date;
+  viewCount: number;
+}
+
+export interface QuizAttempt {
+  questionId: string;
+  selectedAnswer: string;
+  correct: boolean;
+  timestamp: Date;
+  patternTested: string;
+}
+
+export interface PatternStats {
+  correct: number;
+  incorrect: number;
+}
+
+export interface PatternPerformance {
+  pattern: string;
+  accuracy: number;
+  attempts: number;
+}
+
+export interface DashboardData {
+  totalPatternsViewed: number;
+  completedPatterns: number;
+  completionPercentage: number;
+  quizScore: number;
+  totalQuizAttempts: number;
+  correctQuizCount: number;
+  accuracy: number;
+  lastActive: Date | null;
+  recentPatterns: {
+    patternId: string;
+    lastAccessed: Date;
+    completed: boolean;
+    viewCount: number;
+  }[];
+  patternStats: Record<string, PatternStats>;
+  mostViewedPatterns: {
+    patternId: string;
+    viewCount: number;
+  }[];
+}
+
+export interface QuizProgressData {
+  quizAttempts: QuizAttempt[];
+  quizScore: number;
+  totalQuestions: number;
+  totalQuizAttempts: number;
+  correctQuizCount: number;
+  incorrectCount: number;
+  accuracy: number;
+  patternPerformance: Record<string, { 
+    correct: number; 
+    total: number; 
+    accuracy: number;
+  }>;
+}
+
+export interface QuizSummary {
+  totalAttempts: number;
+  correctCount: number;
+  accuracy: number;
+  topPatterns: PatternPerformance[];
+}
+
+export interface ProgressOverview {
+  patternsProgress: {
+    totalAvailable: number;
+    viewed: number;
+    completed: number;
+    completion: number;
+  };
+  quizProgress: {
+    totalQuestions: number;
+    totalAttempts: number;
+    correctAnswers: number;
+    accuracy: number;
+    questionsCoverage: number;
+  };
+  recentActivity: {
+    type: 'pattern' | 'quiz';
+    id: string;
+    date: Date;
+    correct?: boolean;
+  }[];
+}
+
+export interface DiagnosticAttempt {
+  questionId: string;
+  selectedAnswer: string;
+  correct: boolean;
+  timestamp: Date;
+  patternTested: string;
+}
+
+export interface DiagnosticProgressData {
+  diagnosticAttempts: DiagnosticAttempt[];
+  diagnosticScore: number;
+  totalQuestions: number;
+  accuracy: number;
+  patternPerformance: Record<string, { 
+    correct: number; 
+    total: number; 
+    accuracy: number;
+  }>;
+  diagnosticCompleted: boolean;
+  lastDiagnosticAttempt: Date | null;
+}
+
 // Helper function for API requests
 const apiRequest = async <T>(endpoint: string, options?: RequestInit): Promise<T> => {
   try {
@@ -88,8 +202,28 @@ export const completePattern = async (patternId: string): Promise<{ patternId: s
   });
 };
 
-export const getPatternProgress = async (): Promise<{ patternsProgress: any[]; totalPatternsViewed: number }> => {
-  return apiRequest<{ patternsProgress: any[]; totalPatternsViewed: number }>('/patterns/user/progress');
+export const getPatternProgress = async (): Promise<{ 
+  patternsProgress: PatternProgress[]; 
+  totalPatternsViewed: number;
+  completedPatterns: number;
+  completionRate: number;
+  mostViewedPatterns: {
+    patternId: string;
+    viewCount: number;
+    completed: boolean;
+  }[];
+}> => {
+  return apiRequest<{ 
+    patternsProgress: PatternProgress[]; 
+    totalPatternsViewed: number;
+    completedPatterns: number;
+    completionRate: number;
+    mostViewedPatterns: {
+      patternId: string;
+      viewCount: number;
+      completed: boolean;
+    }[];
+  }>('/patterns/user/progress');
 };
 
 export const submitQuizAnswer = async (questionId: string, answer: string): Promise<{
@@ -97,34 +231,103 @@ export const submitQuizAnswer = async (questionId: string, answer: string): Prom
   isCorrect: boolean;
   correctAnswer: string;
   explanation: string;
+  patternTested: string;
 }> => {
   return apiRequest<{
     questionId: string;
     isCorrect: boolean;
     correctAnswer: string;
     explanation: string;
+    patternTested: string;
   }>(`/quiz/${questionId}/answer`, {
     method: 'POST',
     body: JSON.stringify({ answer }),
   });
 };
 
-export const getQuizProgress = async (): Promise<{
-  quizAttempts: any[];
-  quizScore: number;
-  totalQuestions: number;
-  totalAttempts: number;
-  correctAttempts: number;
-  incorrectAttempts: number;
-  accuracy: number;
+export const getQuizProgress = async (): Promise<QuizProgressData> => {
+  return apiRequest<QuizProgressData>('/quiz/user/progress');
+};
+
+export const getQuizSummary = async (): Promise<QuizSummary> => {
+  return apiRequest<QuizSummary>('/quiz/user/summary');
+};
+
+export const getUserDashboard = async (): Promise<DashboardData> => {
+  return apiRequest<DashboardData>('/users/dashboard');
+};
+
+export const getProgressOverview = async (): Promise<ProgressOverview> => {
+  return apiRequest<ProgressOverview>('/users/progress-overview');
+};
+
+export const getNextQuizQuestion = async (): Promise<{ 
+  lastAnsweredIndex: number;
+  nextUnansweredIndex: number;
+}> => {
+  return apiRequest<{ 
+    lastAnsweredIndex: number;
+    nextUnansweredIndex: number;
+  }>('/quiz/user/continue');
+};
+
+export const getDiagnosticQuestions = async (): Promise<QuizQuestion[]> => {
+  return apiRequest<QuizQuestion[]>('/diagnostic');
+};
+
+export const getDiagnosticQuestion = async (questionId: string): Promise<QuizQuestion> => {
+  return apiRequest<QuizQuestion>(`/diagnostic/${questionId}`);
+};
+
+export const submitDiagnosticAnswer = async (questionId: string, answer: string): Promise<{
+  questionId: string;
+  isCorrect: boolean;
+  correctAnswer: string;
+  explanation: string;
+  patternTested: string;
 }> => {
   return apiRequest<{
-    quizAttempts: any[];
-    quizScore: number;
-    totalQuestions: number;
-    totalAttempts: number;
-    correctAttempts: number;
-    incorrectAttempts: number;
-    accuracy: number;
-  }>('/quiz/user/progress');
+    questionId: string;
+    isCorrect: boolean;
+    correctAnswer: string;
+    explanation: string;
+    patternTested: string;
+  }>(`/diagnostic/${questionId}/answer`, {
+    method: 'POST',
+    body: JSON.stringify({ answer }),
+  });
+};
+
+export const getDiagnosticProgress = async (): Promise<DiagnosticProgressData> => {
+  return apiRequest<DiagnosticProgressData>('/diagnostic/user/progress');
+};
+
+export const downloadDiagnosticResults = async (): Promise<Blob> => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('Not authenticated');
+    }
+    
+    const response = await fetch('/api/diagnostic/results/download', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to download: ${response.statusText}`);
+    }
+    
+    return await response.blob();
+  } catch (error) {
+    console.error('Download error:', error);
+    throw error;
+  }
+};
+
+export const manuallyCompleteDiagnostic = async (): Promise<{ diagnosticCompleted: boolean }> => {
+  return apiRequest<{ diagnosticCompleted: boolean }>('/diagnostic/complete', {
+    method: 'POST'
+  });
 };

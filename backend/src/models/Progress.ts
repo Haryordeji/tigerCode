@@ -1,12 +1,11 @@
 import mongoose, { Document, Schema, Types } from 'mongoose';
-import { IUser } from './User';
-import { IQuizQuestion } from './Quiz';
-import { IPattern } from './Pattern';
+
 
 interface IPatternProgress {
   patternId: string;
   completed: boolean;
   lastAccessed: Date;
+  viewCount: number; // How many times the user has viewed this pattern
 }
 
 interface IQuizAttempt {
@@ -14,15 +13,32 @@ interface IQuizAttempt {
   selectedAnswer: string;
   correct: boolean;
   timestamp: Date;
+  patternTested: string; // The pattern related to this question
+}
+
+interface IDiagnosticAttempt {
+  questionId: string;
+  selectedAnswer: string;
+  correct: boolean;
+  timestamp: Date;
+  patternTested: string; // The pattern related to this question
 }
 
 export interface IProgress extends Document {
-  user: Types.ObjectId;  // Changed this line to use Types.ObjectId
+  user: Types.ObjectId;
   patternsProgress: IPatternProgress[];
   quizAttempts: IQuizAttempt[];
+  diagnosticAttempts: IDiagnosticAttempt[];
   quizScore: number;
+  diagnosticScore: number;
   totalPatternsViewed: number;
   lastActive: Date;
+  // Quiz related fields
+  correctQuizCount: number; // Total number of correct quiz answers
+  totalQuizAttempts: number; // Total number of quiz attempts
+  // Diagnostic related fields
+  diagnosticCompleted: boolean;
+  lastDiagnosticAttempt: Date | null;
 }
 
 const patternProgressSchema = new Schema(
@@ -38,6 +54,10 @@ const patternProgressSchema = new Schema(
     lastAccessed: {
       type: Date,
       default: Date.now
+    },
+    viewCount: {
+      type: Number,
+      default: 1
     }
   },
   { _id: false }
@@ -60,6 +80,36 @@ const quizAttemptSchema = new Schema(
     timestamp: {
       type: Date,
       default: Date.now
+    },
+    patternTested: {
+      type: String,
+      default: ''
+    }
+  },
+  { _id: false }
+);
+
+const diagnosticAttemptSchema = new Schema(
+  {
+    questionId: {
+      type: String,
+      required: true
+    },
+    selectedAnswer: {
+      type: String,
+      required: true
+    },
+    correct: {
+      type: Boolean,
+      required: true
+    },
+    timestamp: {
+      type: Date,
+      default: Date.now
+    },
+    patternTested: {
+      type: String,
+      default: ''
     }
   },
   { _id: false }
@@ -68,14 +118,19 @@ const quizAttemptSchema = new Schema(
 const progressSchema = new Schema<IProgress>(
   {
     user: {
-      type: Schema.Types.ObjectId as any,  // Added 'as any' to suppress type error
+      type: Schema.Types.ObjectId as any,
       ref: 'User',
       required: true,
       unique: true
     },
     patternsProgress: [patternProgressSchema],
     quizAttempts: [quizAttemptSchema],
+    diagnosticAttempts: [diagnosticAttemptSchema],
     quizScore: {
+      type: Number,
+      default: 0
+    },
+    diagnosticScore: {
       type: Number,
       default: 0
     },
@@ -86,6 +141,24 @@ const progressSchema = new Schema<IProgress>(
     lastActive: {
       type: Date,
       default: Date.now
+    },
+    // Quiz related fields
+    correctQuizCount: {
+      type: Number,
+      default: 0
+    },
+    totalQuizAttempts: {
+      type: Number,
+      default: 0
+    },
+    // Diagnostic related fields
+    diagnosticCompleted: {
+      type: Boolean,
+      default: false
+    },
+    lastDiagnosticAttempt: {
+      type: Date,
+      default: null
     }
   },
   {

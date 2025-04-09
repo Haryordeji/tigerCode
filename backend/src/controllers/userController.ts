@@ -4,6 +4,7 @@ import User from '../models/User';
 import Progress from '../models/Progress';
 import { AppError } from '../middleware/errorHandler';
 import QuizQuestion from '../models/Quiz';
+import Pattern from '../models/Pattern';
 
 // @desc    Get user profile
 // @route   GET /api/users/profile
@@ -32,6 +33,7 @@ export const getUserProfile = asyncHandler(async (req: Request, res: Response) =
       progress: progress ? {
         totalPatternsViewed: progress.totalPatternsViewed,
         quizScore: progress.quizScore,
+        totalQuizAttempts: progress.totalQuizAttempts,
         lastActive: progress.lastActive
       } : null
     }
@@ -111,59 +113,162 @@ export const getUserDashboard = asyncHandler(async (req: Request, res: Response)
         completedPatterns: 0,
         quizScore: 0,
         quizAttempts: 0,
-        lastActive: null
+        lastActive: null,
+        accuracy: 0,
+        patternStats: {}
       }
     });
   }
 
   // Calculate stats
   const completedPatterns = progress.patternsProgress.filter(p => p.completed).length;
-  const quizAttempts = progress.quizAttempts.length;
+  const totalPatterns = await Pattern.countDocuments();
+  const completionPercentage = totalPatterns > 0 ? (completedPatterns / totalPatterns) * 100 : 0;
+  
+  // Calculate quiz accuracy
+  const accuracy = progress.totalQuizAttempts > 0 
+    ? (progress.correctQuizCount / progress.totalQuizAttempts) * 100 
+    : 0;
 
   // Get recently accessed patterns
   const recentPatterns = progress.patternsProgress
     .sort((a, b) => new Date(b.lastAccessed).getTime() - new Date(a.lastAccessed).getTime())
-    .slice(0, 3)
-    .map(p => p.patternId);
+    .slice(0, 5)
+    .map(p => ({
+      patternId: p.patternId,
+      lastAccessed: p.lastAccessed,
+      completed: p.completed,
+      viewCount: p.viewCount
+    }));
 
   // Get patterns correct/incorrect ratio by pattern
-  const quizPatternStats: Record<string, { correct: number; incorrect: number }> = {};
+  const patternStats: Record<string, { correct: number; incorrect: number }> = {};
   
   // Process quiz attempts to get pattern stats
   for (const attempt of progress.quizAttempts) {
-    // Get question 
-    const question = await QuizQuestion.findOne({ id: attempt.questionId });
-    
-    if (question) {
-      // Get correct answer pattern
-      const correctOption = question.options.find(opt => opt.id === question.correctAnswer);
+    if (attempt.patternTested) {
+      if (!patternStats[attempt.patternTested]) {
+        patternStats[attempt.patternTested] = { correct: 0, incorrect: 0 };
+      }
       
-      if (correctOption) {
-        const pattern = correctOption.pattern;
-        
-        if (!quizPatternStats[pattern]) {
-          quizPatternStats[pattern] = { correct: 0, incorrect: 0 };
-        }
-        
-        if (attempt.correct) {
-          quizPatternStats[pattern].correct += 1;
-        } else {
-          quizPatternStats[pattern].incorrect += 1;
-        }
+      if (attempt.correct) {
+        patternStats[attempt.patternTested].correct += 1;
+      } else {
+        patternStats[attempt.patternTested].incorrect += 1;
       }
     }
   }
+
+  // Get most viewed patterns
+  const mostViewedPatterns = [...progress.patternsProgress]
+    .sort((a, b) => b.viewCount - a.viewCount)
+    .slice(0, 3)
+    .map(p => ({
+      patternId: p.patternId,
+      viewCount: p.viewCount
+    }));
 
   res.status(200).json({
     success: true,
     data: {
       totalPatternsViewed: progress.totalPatternsViewed,
       completedPatterns,
+      completionPercentage,
       quizScore: progress.quizScore,
-      quizAttempts,
+      totalQuizAttempts: progress.totalQuizAttempts,
+      correctQuizCount: progress.correctQuizCount,
       lastActive: progress.lastActive,
       recentPatterns,
-      patternStats: quizPatternStats
+      patternStats,
+      accuracy,
+      mostViewedPatterns
+    }
+  });
+});
+
+// @desc    Get learning progress overview
+// @route   GET /api/users/progress-overview
+// @access  Private
+export const getProgressOverview = asyncHandler(async (req: Request, res: Response): Promise<any> => {
+  if (!req.user || !req.user._id) {
+    throw new AppError('User not authenticated', 401);
+  }
+  
+  const userId = req.user._id;
+  
+  // Get user progress
+  const progress = await Progress.findOne({ user: userId });
+  
+  if (!progress) {
+    return res.status(200).json({
+      success: true,
+      data: {
+        patternsProgress: {
+          total: 0,
+          completed: 0,
+          completion: 0
+        },
+        quizProgress: {
+          totalAttempts: 0,
+          correctAnswers: 0,
+          accuracy: 0
+        },
+        recentActivity: []
+      }
+    });
+  }
+  
+  // Calculate pattern progress stats
+  const totalPatterns = await Pattern.countDocuments();
+  const viewedPatterns = progress.patternsProgress.length;
+  const completedPatterns = progress.patternsProgress.filter(p => p.completed).length;
+  const patternCompletion = totalPatterns > 0 ? (completedPatterns / totalPatterns) * 100 : 0;
+  
+  // Calculate quiz progress stats
+  const totalQuestions = await QuizQuestion.countDocuments();
+  const quizAttempts = progress.totalQuizAttempts;
+  const correctAnswers = progress.correctQuizCount;
+  const quizAccuracy = quizAttempts > 0 ? (correctAnswers / quizAttempts) * 100 : 0;
+  const questionsCoverage = totalQuestions > 0 ? 
+    (progress.quizAttempts.map(a => a.questionId).filter((v, i, a) => a.indexOf(v) === i).length / totalQuestions) * 100 
+    : 0;
+  
+  // Get recent activity (combining patterns and quizzes)
+  const patternActivity = progress.patternsProgress.map(p => ({
+    type: 'pattern',
+    id: p.patternId,
+    date: p.lastAccessed
+  }));
+  
+  const quizActivity = progress.quizAttempts.map(q => ({
+    type: 'quiz',
+    id: q.questionId,
+    date: q.timestamp,
+    correct: q.correct
+  }));
+  
+  // Combine and sort by date (most recent first)
+  const recentActivity = [...patternActivity, ...quizActivity]
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .slice(0, 10);
+  
+  res.status(200).json({
+    success: true,
+    data: {
+      patternsProgress: {
+        totalAvailable: totalPatterns,
+        viewed: viewedPatterns,
+        completed: completedPatterns,
+        completion: patternCompletion
+      },
+      quizProgress: {
+        totalQuestions,
+        totalAttempts: quizAttempts,
+        correctAnswers,
+        accuracy: quizAccuracy,
+        questionsCoverage
+      },
+      recentActivity
     }
   });
 });
