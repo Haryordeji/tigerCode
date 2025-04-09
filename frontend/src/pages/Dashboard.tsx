@@ -30,7 +30,6 @@ export const Dashboard = () => {
           // If diagnostic is not completed, redirect to diagnostic page
           if (!diagProgress.diagnosticCompleted && !checkingDiagnostic) {
             // refresh page
-            window.location.reload();
             navigate('/diagnostic');
             return;
           }

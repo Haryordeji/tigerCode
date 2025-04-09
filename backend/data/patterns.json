@@ -1,164 +1,325 @@
 {
-    "patterns": [
-      {
-        "id": "two-pointers",
-        "title": "Two Pointers",
-        "description": "Efficiently solve array problems by using two pointers that move towards or away from each other.",
-        "icon": "👉👉",
-        "useCases": [
-          "Finding pairs in a sorted array that sum to a target value",
-          "Detecting cycles in a linked list",
-          "Removing duplicates from a sorted array",
-          "Palindrome checking"
-        ],
-        "algorithmicBackground": "The Two Pointers technique is often used to solve problems with O(n) time complexity instead of O(n²). It works particularly well with sorted arrays or linked lists.",
-        "examples": [
-          {
-            "id": "example-1",
-            "title": "Two Sum II - Input Array Is Sorted",
-            "description": "Given a sorted array of integers, find two numbers such that they add up to a specific target number.",
-            "difficulty": "Easy",
-            "code": "function twoSum(numbers: number[], target: number): number[] {\n  let left = 0;\n  let right = numbers.length - 1;\n  \n  while (left < right) {\n    const sum = numbers[left] + numbers[right];\n    \n    if (sum === target) {\n      return [left + 1, right + 1]; // 1-indexed array\n    } else if (sum < target) {\n      left++;\n    } else {\n      right--;\n    }\n  }\n  \n  return [-1, -1]; // No solution found\n}"
-          },
-          {
-            "id": "example-2",
-            "title": "Remove Duplicates from Sorted Array",
-            "description": "Given a sorted array, remove the duplicates in-place such that each element appears only once and return the new length.",
-            "difficulty": "Easy",
-            "code": "function removeDuplicates(nums: number[]): number {\n  if (nums.length === 0) return 0;\n  \n  let i = 0;\n  \n  for (let j = 1; j < nums.length; j++) {\n    if (nums[j] !== nums[i]) {\n      i++;\n      nums[i] = nums[j];\n    }\n  }\n  \n  return i + 1;\n}"
-          },
-          {
-            "id": "example-3",
-            "title": "Container With Most Water",
-            "description": "Given n non-negative integers representing the heights of bars, find two bars that together with the x-axis forms a container that holds the most water.",
-            "difficulty": "Medium",
-            "code": "function maxArea(height: number[]): number {\n  let maxWater = 0;\n  let left = 0;\n  let right = height.length - 1;\n  \n  while (left < right) {\n    const width = right - left;\n    const minHeight = Math.min(height[left], height[right]);\n    maxWater = Math.max(maxWater, width * minHeight);\n    \n    if (height[left] < height[right]) {\n      left++;\n    } else {\n      right--;\n    }\n  }\n  \n  return maxWater;\n}"
-          }
-        ]
-      },
-      {
-        "id": "sliding-window",
-        "title": "Sliding Window",
-        "description": "Efficiently process consecutive subarrays or substrings of a specific size.",
-        "icon": "🪟",
-        "useCases": [
-          "Finding the longest substring without repeating characters",
-          "Finding the maximum sum subarray of a fixed size",
-          "Finding the smallest subarray with a sum greater than a given value",
-          "String matching problems"
-        ],
-        "algorithmicBackground": "The Sliding Window technique is used to perform operations on a dynamic window in an array or string. It converts two nested loops into a single loop, reducing time complexity from O(n²) to O(n).",
-        "examples": [
-          {
-            "id": "example-1",
-            "title": "Maximum Sum Subarray of Size K",
-            "description": "Find the maximum sum of any contiguous subarray of size k.",
-            "difficulty": "Easy",
-            "code": "function maxSumSubarray(arr: number[], k: number): number {\n  let maxSum = 0;\n  let windowSum = 0;\n  \n  // Sum first k elements\n  for (let i = 0; i < k; i++) {\n    windowSum += arr[i];\n  }\n  \n  maxSum = windowSum;\n  \n  // Slide window and update maxSum\n  for (let i = k; i < arr.length; i++) {\n    windowSum = windowSum - arr[i - k] + arr[i];\n    maxSum = Math.max(maxSum, windowSum);\n  }\n  \n  return maxSum;\n}"
-          },
-          {
-            "id": "example-2",
-            "title": "Longest Substring Without Repeating Characters",
-            "description": "Given a string, find the length of the longest substring without repeating characters.",
-            "difficulty": "Medium",
-            "code": "function lengthOfLongestSubstring(s: string): number {\n  const charMap = new Map();\n  let maxLength = 0;\n  let windowStart = 0;\n  \n  for (let windowEnd = 0; windowEnd < s.length; windowEnd++) {\n    const rightChar = s[windowEnd];\n    \n    // If character is already in current window\n    if (charMap.has(rightChar)) {\n      // Move window start to position after the last occurrence\n      windowStart = Math.max(windowStart, charMap.get(rightChar) + 1);\n    }\n    \n    // Update character position\n    charMap.set(rightChar, windowEnd);\n    \n    // Update max length\n    maxLength = Math.max(maxLength, windowEnd - windowStart + 1);\n  }\n  \n  return maxLength;\n}"
-          }
-        ]
-      },
-      {
-        "id": "binary-search",
-        "title": "Binary Search",
-        "description": "Efficiently find an element in a sorted collection by repeatedly dividing the search space in half.",
-        "icon": "🔍",
-        "useCases": [
-          "Searching in a sorted array",
-          "Finding the first or last occurrence of an element",
-          "Finding the square root of a number",
-          "Finding the peak element in a bitonic array"
-        ],
-        "algorithmicBackground": "Binary Search is a divide and conquer algorithm that works on sorted data. It repeatedly divides the search space in half, achieving O(log n) time complexity instead of O(n) for linear search.",
-        "examples": [
-          {
-            "id": "example-1",
-            "title": "Binary Search in Sorted Array",
-            "description": "Search for a target value in a sorted array.",
-            "difficulty": "Easy",
-            "code": "function binarySearch(nums: number[], target: number): number {\n  let left = 0;\n  let right = nums.length - 1;\n  \n  while (left <= right) {\n    const mid = Math.floor((left + right) / 2);\n    \n    if (nums[mid] === target) {\n      return mid;\n    } else if (nums[mid] < target) {\n      left = mid + 1;\n    } else {\n      right = mid - 1;\n    }\n  }\n  \n  return -1; // Target not found\n}"
-          }
-        ]
-      },
-      {
-        "id": "dfs-bfs",
-        "title": "Depth-First & Breadth-First Search",
-        "description": "Traverse and search tree or graph data structures using recursive or queue-based approaches.",
-        "icon": "🌲",
-        "useCases": [
-          "Traversing trees and graphs",
-          "Finding connected components",
-          "Detecting cycles in a graph",
-          "Finding the shortest path in an unweighted graph (BFS)"
-        ],
-        "algorithmicBackground": "DFS explores as far as possible along each branch before backtracking, often implemented recursively. BFS explores all neighbors at the present depth before moving to nodes at the next depth level, using a queue.",
-        "examples": [
-          {
-            "id": "example-1",
-            "title": "DFS Tree Traversal",
-            "description": "Perform a depth-first traversal of a binary tree.",
-            "difficulty": "Easy",
-            "code": "function dfs(root: TreeNode | null): number[] {\n  const result: number[] = [];\n  \n  function traverse(node: TreeNode | null) {\n    if (!node) return;\n    \n    // Pre-order traversal: visit node first, then children\n    result.push(node.val);\n    traverse(node.left);\n    traverse(node.right);\n  }\n  \n  traverse(root);\n  return result;\n}"
-          },
-          {
-            "id": "example-2",
-            "title": "BFS Tree Traversal",
-            "description": "Perform a breadth-first traversal of a binary tree.",
-            "difficulty": "Easy",
-            "code": "function bfs(root: TreeNode | null): number[] {\n  if (!root) return [];\n  \n  const result: number[] = [];\n  const queue: TreeNode[] = [root];\n  \n  while (queue.length > 0) {\n    const node = queue.shift()!;\n    result.push(node.val);\n    \n    if (node.left) queue.push(node.left);\n    if (node.right) queue.push(node.right);\n  }\n  \n  return result;\n}"
-          }
-        ]
-      },
-      {
-        "id": "dynamic-programming",
-        "title": "Dynamic Programming",
-        "description": "Solve complex problems by breaking them down into simpler overlapping subproblems.",
-        "icon": "📊",
-        "useCases": [
-          "Fibonacci sequence calculation",
-          "Longest common subsequence",
-          "Knapsack problem",
-          "Shortest path problems"
-        ],
-        "algorithmicBackground": "Dynamic Programming optimizes recursive algorithms by storing results of subproblems to avoid redundant calculations. It's applicable when a problem has optimal substructure and overlapping subproblems.",
-        "examples": [
-          {
-            "id": "example-1",
-            "title": "Fibonacci Sequence",
-            "description": "Calculate the nth Fibonacci number efficiently.",
-            "difficulty": "Easy",
-            "code": "function fibonacci(n: number): number {\n  const dp: number[] = new Array(n + 1);\n  dp[0] = 0;\n  dp[1] = 1;\n  \n  for (let i = 2; i <= n; i++) {\n    dp[i] = dp[i - 1] + dp[i - 2];\n  }\n  \n  return dp[n];\n}"
-          }
-        ]
-      },
-      {
-        "id": "backtracking",
-        "title": "Backtracking",
-        "description": "Find all (or some) solutions to computational problems by incrementally building candidates and abandoning them when they fail to satisfy constraints.",
-        "icon": "↩️",
-        "useCases": [
-          "N-Queens problem",
-          "Sudoku solver",
-          "Generating permutations and combinations",
-          "Subset sum problems"
-        ],
-        "algorithmicBackground": "Backtracking is a general algorithm for finding all (or some) solutions to constraint satisfaction problems. It incrementally builds candidates and abandons a candidate as soon as it determines the candidate cannot be valid.",
-        "examples": [
-          {
-            "id": "example-1",
-            "title": "Generate All Permutations",
-            "description": "Generate all possible permutations of a given array of distinct integers.",
-            "difficulty": "Medium",
-            "code": "function permute(nums: number[]): number[][] {\n  const result: number[][] = [];\n  \n  function backtrack(current: number[], remaining: number[]) {\n    if (remaining.length === 0) {\n      result.push([...current]);\n      return;\n    }\n    \n    for (let i = 0; i < remaining.length; i++) {\n      current.push(remaining[i]);\n      const newRemaining = [...remaining.slice(0, i), ...remaining.slice(i + 1)];\n      backtrack(current, newRemaining);\n      current.pop();\n    }\n  }\n  \n  backtrack([], nums);\n  return result;\n}"
-          }
-        ]
-      }
-    ]
-  }
+  "patterns": [
+    {
+      "id": "depth-first-search",
+      "title": "Depth-First Search (DFS)",
+      "description": "Explore as far down one path or branch as possible before backtracking, using a stack or recursion to remember the path.",
+      "icon": "🤿",
+      "useCases": [
+        "Traversing all the nodes in a tree or graph by exploring one branch fully before moving to the next.",
+        "Finding connected components in a network (e.g., counting islands in a grid by exploring neighbors recursively).",
+        "Pathfinding in puzzles or mazes by going deep until a dead-end, then backtracking (e.g., exploring a maze)."
+      ],
+      "algorithmicBackground": "Depth-First Search is a fundamental graph traversal method that uses recursion or an explicit stack to go deep into one neighbor before exploring others. It prioritizes depth, meaning it follows a path from the start to an end before trying alternate paths. This approach is useful for exhaustively searching spaces and is the basis for backtracking algorithms. DFS doesn't guarantee the shortest path but is memory-efficient and easy to implement recursively for structures like trees and graphs.",
+      "examples": [
+        {
+          "id": "example-1",
+          "title": "Binary Tree Preorder Traversal",
+          "description": "Traverse a binary tree in depth-first order (preorder) and collect node values.",
+          "difficulty": "Easy",
+          "code": "public void preorderTraversal(TreeNode root) {\n    if (root == null) return;\n    System.out.print(root.val + \" \");\n    preorderTraversal(root.left);\n    preorderTraversal(root.right);\n}"
+        },
+        {
+          "id": "example-2",
+          "title": "Number of Islands (Matrix DFS)",
+          "description": "Use DFS to count the number of islands (connected regions of 1s) in a 2D grid.",
+          "difficulty": "Medium",
+          "code": "public int numIslands(char[][] grid) {\n    if (grid == null || grid.length == 0) return 0;\n    int count = 0;\n    int n = grid.length, m = grid[0].length;\n    for (int i = 0; i < n; i++) {\n        for (int j = 0; j < m; j++) {\n            if (grid[i][j] == '1') {\n                count++;\n                dfs(grid, i, j);\n            }\n        }\n    }\n    return count;\n}\nprivate void dfs(char[][] grid, int i, int j) {\n    int n = grid.length, m = grid[0].length;\n    if (i < 0 || j < 0 || i >= n || j >= m || grid[i][j] != '1') return;\n    grid[i][j] = '0';\n    dfs(grid, i+1, j);\n    dfs(grid, i-1, j);\n    dfs(grid, i, j+1);\n    dfs(grid, i, j-1);\n}"
+        },
+        {
+          "id": "example-3",
+          "title": "Path Sum in Binary Tree",
+          "description": "Determine if there's a root-to-leaf path in a binary tree that adds up to a given sum using DFS.",
+          "difficulty": "Medium",
+          "code": "public boolean hasPathSum(TreeNode root, int targetSum) {\n    if (root == null) return false;\n    if (root.left == null && root.right == null && root.val == targetSum) {\n        return true;\n    }\n    return hasPathSum(root.left, targetSum - root.val) \n        || hasPathSum(root.right, targetSum - root.val);\n}"
+        }
+      ]
+    },
+    {
+      "id": "breadth-first-search",
+      "title": "Breadth-First Search (BFS)",
+      "description": "Traverse layer by layer, exploring all neighbors at the current depth before moving deeper, usually implemented with a queue.",
+      "icon": "🗺️",
+      "useCases": [
+        "Level-by-level traversal of trees or graphs (e.g., traversing a family tree generation by generation).",
+        "Finding the shortest path in an unweighted graph or maze (e.g., the minimum moves to solve a puzzle or reach a destination).",
+        "Networking and spreading processes (e.g., virus spread or social network degrees of connection measured in hops)."
+      ],
+      "algorithmicBackground": "Breadth-First Search is another fundamental graph traversal technique that explores neighbors in order of proximity. Using a queue, BFS visits all nodes at distance 1 before distance 2, and so on. This layer-by-layer approach guarantees finding the shortest path in terms of number of edges in an unweighted graph. BFS is intuitively like a wave expanding outward from the source, useful for scenarios where you want the minimum number of steps to reach a goal.",
+      "examples": [
+        {
+          "id": "example-1",
+          "title": "Binary Tree Level Order Traversal",
+          "description": "Use BFS to traverse a binary tree level by level (breadth-first) and return the values by each level.",
+          "difficulty": "Easy",
+          "code": "public List<List<Integer>> levelOrder(TreeNode root) {\n    List<List<Integer>> result = new ArrayList<>();\n    if (root == null) return result;\n    Queue<TreeNode> queue = new LinkedList<>();\n    queue.offer(root);\n    while (!queue.isEmpty()) {\n        int size = queue.size();\n        List<Integer> level = new ArrayList<>();\n        for (int i = 0; i < size; i++) {\n            TreeNode node = queue.poll();\n            level.add(node.val);\n            if (node.left != null) queue.offer(node.left);\n            if (node.right != null) queue.offer(node.right);\n        }\n        result.add(level);\n    }\n    return result;\n}"
+        },
+        {
+          "id": "example-2",
+          "title": "Shortest Path in a Maze",
+          "description": "Use BFS to find the minimum number of steps needed to go from a start position to a target position in a grid (maze).",
+          "difficulty": "Medium",
+          "code": "public int shortestPath(int[][] grid, int sx, int sy, int tx, int ty) {\n    int n = grid.length, m = grid[0].length;\n    int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}};\n    boolean[][] visited = new boolean[n][m];\n    Queue<int[]> q = new LinkedList<>();\n    q.offer(new int[]{sx, sy});\n    visited[sx][sy] = true;\n    int steps = 0;\n    while (!q.isEmpty()) {\n        int size = q.size();\n        for (int i = 0; i < size; i++) {\n            int[] cell = q.poll();\n            if (cell[0] == tx && cell[1] == ty) {\n                return steps;\n            }\n            for (int[] d : dirs) {\n                int nx = cell[0] + d[0], ny = cell[1] + d[1];\n                if (nx >= 0 && nx < n && ny >= 0 && ny < m \n                        && grid[nx][ny] == 0 && !visited[nx][ny]) {\n                    visited[nx][ny] = true;\n                    q.offer(new int[]{nx, ny});\n                }\n            }\n        }\n        steps++;\n    }\n    return -1;\n}"
+        },
+        {
+          "id": "example-3",
+          "title": "Word Ladder (Shortest Word Transformation)",
+          "description": "Given a start word and an end word, use BFS to find the fewest single-letter transformations needed to reach the end word (word ladder problem).",
+          "difficulty": "Hard",
+          "code": "public int ladderLength(String beginWord, String endWord, Set<String> wordList) {\n    Queue<String> queue = new LinkedList<>();\n    queue.offer(beginWord);\n    Set<String> visited = new HashSet<>();\n    visited.add(beginWord);\n    int length = 1;\n    while (!queue.isEmpty()) {\n        int size = queue.size();\n        for (int i = 0; i < size; i++) {\n            String word = queue.poll();\n            if (word.equals(endWord)) {\n                return length;\n            }\n            char[] chars = word.toCharArray();\n            for (int j = 0; j < chars.length; j++) {\n                char original = chars[j];\n                for (char c = 'a'; c <= 'z'; c++) {\n                    if (c == original) continue;\n                    chars[j] = c;\n                    String newWord = new String(chars);\n                    if (wordList.contains(newWord) && !visited.contains(newWord)) {\n                        visited.add(newWord);\n                        queue.offer(newWord);\n                    }\n                }\n                chars[j] = original;\n            }\n        }\n        length++;\n    }\n    return 0;\n}"
+        }
+      ]
+    },
+    {
+      "id": "two-pointers",
+      "title": "Two Pointers",
+      "description": "Operate with two index pointers (often one at the start and one at the end) to efficiently traverse and process arrays or lists.",
+      "icon": "↔️",
+      "useCases": [
+        "Finding pairs in a sorted array that meet a condition (e.g., two numbers summing to a target).",
+        "Removing or rearranging elements in place in an array (e.g., moving zeros or removing duplicates without extra space).",
+        "Checking palindrome strings by comparing characters from both ends toward the center.",
+        "Merging two sorted lists or arrays by advancing pointers through each."
+      ],
+      "algorithmicBackground": "The two pointers pattern leverages two indices to traverse a sequence from different ends or at different speeds. By moving these pointers towards each other (or one fast and one slow), many problems that would normally require nested loops can be solved in linear time. This approach works especially well on sorted arrays, where pointers can efficiently skip over sections of the search space based on the current sum or comparison. It's a greedy-like strategy that narrows down possibilities by making progress from both directions.",
+      "examples": [
+        {
+          "id": "example-1",
+          "title": "Pair with Target Sum (Two Sum II)",
+          "description": "Find two numbers in a sorted array that add up to a given target using two pointers moving inward from both ends.",
+          "difficulty": "Easy",
+          "code": "public int[] twoSumSorted(int[] arr, int target) {\n    int left = 0, right = arr.length - 1;\n    while (left < right) {\n        int sum = arr[left] + arr[right];\n        if (sum == target) {\n            return new int[]{ left, right };\n        } else if (sum < target) {\n            left++;\n        } else {\n            right--;\n        }\n    }\n    return new int[]{ -1, -1 };\n}"
+        },
+        {
+          "id": "example-2",
+          "title": "Container With Most Water",
+          "description": "Use two pointers to find the maximum area of water container formed by vertical lines at each index (move the pointers inward for optimal solution).",
+          "difficulty": "Medium",
+          "code": "public int maxArea(int[] height) {\n    int left = 0, right = height.length - 1;\n    int maxArea = 0;\n    while (left < right) {\n        int width = right - left;\n        int area = Math.min(height[left], height[right]) * width;\n        maxArea = Math.max(maxArea, area);\n        if (height[left] < height[right]) {\n            left++;\n        } else {\n            right--;\n        }\n    }\n    return maxArea;\n}"
+        },
+        {
+          "id": "example-3",
+          "title": "Triplet Sum to Zero (3Sum)",
+          "description": "Find all unique triplets in an array that sum up to zero by sorting the array and using two pointers for each potential first element.",
+          "difficulty": "Hard",
+          "code": "public List<List<Integer>> threeSum(int[] nums) {\n    List<List<Integer>> result = new ArrayList<>();\n    Arrays.sort(nums);\n    for (int i = 0; i < nums.length - 2; i++) {\n        if (i > 0 && nums[i] == nums[i-1]) continue;\n        int left = i + 1;\n        int right = nums.length - 1;\n        while (left < right) {\n            int sum = nums[i] + nums[left] + nums[right];\n            if (sum == 0) {\n                result.add(Arrays.asList(nums[i], nums[left], nums[right]));\n                left++;\n                right--;\n                while (left < right && nums[left] == nums[left-1]) left++;\n                while (left < right && nums[right] == nums[right+1]) right--;\n            } else if (sum < 0) {\n                left++;\n            } else {\n                right--;\n            }\n        }\n    }\n    return result;\n}"
+        }
+      ]
+    },
+    {
+      "id": "sliding-window",
+      "title": "Sliding Window",
+      "description": "Maintain a window of consecutive elements (subarray or substring) and slide it through the data to efficiently find a solution without restarting the scan from scratch each time.",
+      "icon": "🪟",
+      "useCases": [
+        "Finding a subarray with a target sum or maximum sum (e.g., highest sales in any k-day window).",
+        "Finding the shortest subarray that meets a condition (e.g., smallest window with sum ≥ X).",
+        "Finding the longest substring that satisfies a constraint (e.g., longest unique-character substring in a string).",
+        "Real-time monitoring of data streams using a fixed-size window (e.g., moving average or sum of the last N elements)."
+      ],
+      "algorithmicBackground": "The sliding window pattern is a technique to efficiently handle problems involving contiguous sequences, such as subarrays or substrings. Instead of naively checking all possible segments (which is slow), we keep a 'window' and adjust its boundaries as we move through the data. By adding the new element that enters the window and removing the one that leaves, we reuse previous computations. This approach often brings down complexity from O(n^2) to O(n) for many problems involving contiguous elements.",
+      "examples": [
+        {
+          "id": "example-1",
+          "title": "Maximum Sum Subarray of Size K",
+          "description": "Find the maximum sum of any contiguous subarray of length K using a sliding window of fixed size.",
+          "difficulty": "Easy",
+          "code": "public int maxSubArraySum(int[] arr, int K) {\n    int windowSum = 0;\n    for (int i = 0; i < K; i++) {\n        windowSum += arr[i];\n    }\n    int maxSum = windowSum;\n    for (int i = K; i < arr.length; i++) {\n        windowSum += arr[i] - arr[i - K];\n        maxSum = Math.max(maxSum, windowSum);\n    }\n    return maxSum;\n}"
+        },
+        {
+          "id": "example-2",
+          "title": "Smallest Subarray with Given Sum",
+          "description": "Find the length of the smallest contiguous subarray whose sum is at least a target value by expanding and contracting a sliding window.",
+          "difficulty": "Medium",
+          "code": "public int smallestSubarrayWithSum(int[] arr, int target) {\n    int minLen = Integer.MAX_VALUE;\n    int windowSum = 0;\n    int left = 0;\n    for (int right = 0; right < arr.length; right++) {\n        windowSum += arr[right];\n        while (windowSum >= target) {\n            minLen = Math.min(minLen, right - left + 1);\n            windowSum -= arr[left++];\n        }\n    }\n    return (minLen == Integer.MAX_VALUE) ? 0 : minLen;\n}"
+        },
+        {
+          "id": "example-3",
+          "title": "Longest Substring Without Repeating Characters",
+          "description": "Use a sliding window to find the length of the longest substring of a given string that contains no duplicate characters.",
+          "difficulty": "Hard",
+          "code": "public int lengthOfLongestSubstring(String s) {\n    Set<Character> seen = new HashSet<>();\n    int maxLen = 0;\n    int left = 0;\n    for (int right = 0; right < s.length(); right++) {\n        char c = s.charAt(right);\n        while (seen.contains(c)) {\n            seen.remove(s.charAt(left));\n            left++;\n        }\n        seen.add(c);\n        maxLen = Math.max(maxLen, right - left + 1);\n    }\n    return maxLen;\n}"
+        }
+      ]
+    },
+    {
+      "id": "backtracking",
+      "title": "Backtracking",
+      "description": "Solve problems by exploring all possible options and backtracking (undoing) when a path fails, essentially using DFS with careful reversal of choices.",
+      "icon": "🔙",
+      "useCases": [
+        "Solving puzzles with constraints (e.g., Sudoku solver or crossword fill-in by trying possibilities).",
+        "Generating combinations and permutations (e.g., listing all subsets of a set or all arrangements of letters).",
+        "Exploring decision trees in games or search problems (e.g., placing N queens on a chessboard or pathfinding with dead ends)."
+      ],
+      "algorithmicBackground": "Backtracking is a refined brute-force technique that builds solutions incrementally and abandons (backtracks) when a partial solution cannot lead to a valid full solution. It's effectively a depth-first search on a state-space tree of choices. When a path hits a dead end or violates constraints, the algorithm backtracks to try a different option. While potentially exponential in the worst case, backtracking is pruned with constraints, making it feasible for many puzzles and combinatorial problems.",
+      "examples": [
+        {
+          "id": "example-1",
+          "title": "Generate All Subsets (Power Set)",
+          "description": "Use backtracking to generate all possible subsets of a given set of numbers.",
+          "difficulty": "Easy",
+          "code": "public List<List<Integer>> subsets(int[] nums) {\n    List<List<Integer>> result = new ArrayList<>();\n    backtrack(result, new ArrayList<>(), nums, 0);\n    return result;\n}\nprivate void backtrack(List<List<Integer>> result, List<Integer> current, int[] nums, int start) {\n    result.add(new ArrayList<>(current));\n    for (int i = start; i < nums.length; i++) {\n        current.add(nums[i]);\n        backtrack(result, current, nums, i + 1);\n        current.remove(current.size() - 1);\n    }\n}"
+        },
+        {
+          "id": "example-2",
+          "title": "Permutations of an Array",
+          "description": "Generate all permutations of an array of unique numbers by choosing a number, then backtracking to insert the next.",
+          "difficulty": "Medium",
+          "code": "public List<List<Integer>> permute(int[] nums) {\n    List<List<Integer>> result = new ArrayList<>();\n    boolean[] used = new boolean[nums.length];\n    backtrack(result, new ArrayList<>(), nums, used);\n    return result;\n}\nprivate void backtrack(List<List<Integer>> result, List<Integer> current, int[] nums, boolean[] used) {\n    if (current.size() == nums.length) {\n        result.add(new ArrayList<>(current));\n        return;\n    }\n    for (int i = 0; i < nums.length; i++) {\n        if (used[i]) continue;\n        used[i] = true;\n        current.add(nums[i]);\n        backtrack(result, current, nums, used);\n        current.remove(current.size() - 1);\n        used[i] = false;\n    }\n}"
+        },
+        {
+          "id": "example-3",
+          "title": "N-Queens Problem",
+          "description": "Place N queens on an N×N chessboard so that no two queens can attack each other, using backtracking to try placements row by row.",
+          "difficulty": "Hard",
+          "code": "public List<List<String>> solveNQueens(int n) {\n    List<List<String>> solutions = new ArrayList<>();\n    char[][] board = new char[n][n];\n    for (int i = 0; i < n; i++) {\n        Arrays.fill(board[i], '.');\n    }\n    backtrack(solutions, board, 0);\n    return solutions;\n}\nprivate void backtrack(List<List<String>> solutions, char[][] board, int row) {\n    if (row == board.length) {\n        solutions.add(construct(board));\n        return;\n    }\n    for (int col = 0; col < board.length; col++) {\n        if (isValid(board, row, col)) {\n            board[row][col] = 'Q';\n            backtrack(solutions, board, row + 1);\n            board[row][col] = '.';\n        }\n    }\n}\nprivate boolean isValid(char[][] board, int row, int col) {\n    for (int i = 0; i < row; i++) {\n        if (board[i][col] == 'Q') return false;\n        if (col - (row - i) >= 0 && board[i][col - (row - i)] == 'Q') return false;\n        if (col + (row - i) < board.length && board[i][col + (row - i)] == 'Q') return false;\n    }\n    return true;\n}\nprivate List<String> construct(char[][] board) {\n    List<String> rows = new ArrayList<>();\n    for (int i = 0; i < board.length; i++) {\n        rows.add(new String(board[i]));\n    }\n    return rows;\n}"
+        }
+      ]
+    },
+    {
+      "id": "dynamic-programming",
+      "title": "Dynamic Programming (DP)",
+      "description": "Break problems into overlapping subproblems and solve each just once, storing results for reuse, to optimize recursive solutions that have repeated computations.",
+      "icon": "🧮",
+      "useCases": [
+        "Computing combinatorial sequences efficiently (e.g., Fibonacci numbers or ways to climb stairs without redundant calculations).",
+        "Optimization problems like knapsack (selecting items for maximum value under weight constraints) or coin change (making change with minimum coins).",
+        "Analyzing sequences for patterns (e.g., longest increasing subsequence in an array, or edit distance between two strings for spell-checking).",
+        "Grid-based pathfinding with costs (e.g., finding a path through a grid with minimal total cost using accumulated subproblem solutions)."
+      ],
+      "algorithmicBackground": "Dynamic Programming is an optimization technique for recursive problems with overlapping subproblems. It involves storing the results of subproblems so they don't have to be recomputed (memoization) or building up solutions from smaller subparts (tabulation). By leveraging the principle of optimal substructure (the optimal solution can be composed from optimal solutions of subproblems), DP transforms exponential brute-force recursions into polynomial time solutions. It's widely used for counting problems, optimization puzzles, and many classical algorithmic challenges.",
+      "examples": [
+        {
+          "id": "example-1",
+          "title": "Fibonacci with Tabulation",
+          "description": "Compute Fibonacci numbers efficiently by building up an array of solutions from 0 up to N instead of using naive recursion.",
+          "difficulty": "Easy",
+          "code": "public long fib(int n) {\n    if (n <= 1) return n;\n    long[] dp = new long[n + 1];\n    dp[0] = 0;\n    dp[1] = 1;\n    for (int i = 2; i <= n; i++) {\n        dp[i] = dp[i - 1] + dp[i - 2];\n    }\n    return dp[n];\n}"
+        },
+        {
+          "id": "example-2",
+          "title": "Coin Change (Minimum Coins)",
+          "description": "Given coin denominations and a target amount, use DP to determine the fewest coins needed to make the amount (or -1 if impossible).",
+          "difficulty": "Medium",
+          "code": "public int coinChange(int[] coins, int amount) {\n    int max = amount + 1;\n    int[] dp = new int[amount + 1];\n    Arrays.fill(dp, max);\n    dp[0] = 0;\n    for (int coin : coins) {\n        for (int x = coin; x <= amount; x++) {\n            dp[x] = Math.min(dp[x], dp[x - coin] + 1);\n        }\n    }\n    return dp[amount] > amount ? -1 : dp[amount];\n}"
+        },
+        {
+          "id": "example-3",
+          "title": "Longest Increasing Subsequence",
+          "description": "Use DP to find the length of the longest increasing subsequence in an array by building up solutions for each prefix of the array.",
+          "difficulty": "Hard",
+          "code": "public int lengthOfLIS(int[] nums) {\n    if (nums.length == 0) return 0;\n    int[] dp = new int[nums.length];\n    Arrays.fill(dp, 1);\n    int maxLen = 1;\n    for (int i = 1; i < nums.length; i++) {\n        for (int j = 0; j < i; j++) {\n            if (nums[j] < nums[i]) {\n                dp[i] = Math.max(dp[i], dp[j] + 1);\n            }\n        }\n        maxLen = Math.max(maxLen, dp[i]);\n    }\n    return maxLen;\n}"
+        }
+      ]
+    },
+    {
+      "id": "binary-search",
+      "title": "Binary Search",
+      "description": "Efficiently find an element in a sorted collection by repeatedly halving the search range, eliminating half of the remaining elements at each step.",
+      "icon": "🔍",
+      "useCases": [
+        "Looking up an item in a sorted list or database quickly (e.g., finding a word in a dictionary or a name in a phonebook).",
+        "Finding insertion points or boundaries (e.g., the first occurrence of a value or the smallest number greater than a target in a sorted array).",
+        "Searching for a condition in a monotonic function space (e.g., finding the threshold where a condition becomes true).",
+        "Interactive guessing games (e.g., guessing a number between 1 and 100 by halving the range with each guess)."
+      ],
+      "algorithmicBackground": "Binary Search is a classic divide-and-conquer algorithm that operates on sorted data. By comparing the target value to the middle element, it discards half of the search space at each iteration. This yields a time complexity of O(log n), which is much faster than linear search for large datasets. The method relies on the data being sorted or monotonic in nature. It's commonly applied not just to direct lookups, but also to find boundaries or to search within implicit search spaces (like finding a root of a function or solving problems by binary searching an answer).",
+      "examples": [
+        {
+          "id": "example-1",
+          "title": "Basic Binary Search",
+          "description": "Search for a target value in a sorted array by repeatedly dividing the search interval in half.",
+          "difficulty": "Easy",
+          "code": "public int binarySearch(int[] arr, int target) {\n    int low = 0, high = arr.length - 1;\n    while (low <= high) {\n        int mid = low + (high - low) / 2;\n        if (arr[mid] == target) {\n            return mid;\n        } else if (arr[mid] < target) {\n            low = mid + 1;\n        } else {\n            high = mid - 1;\n        }\n    }\n    return -1;\n}"
+        },
+        {
+          "id": "example-2",
+          "title": "First and Last Position of Element",
+          "description": "Use modified binary search to find the first and last index of a given target in a sorted array (handling duplicate elements).",
+          "difficulty": "Medium",
+          "code": "public int[] searchRange(int[] arr, int target) {\n    int first = findBound(arr, target, true);\n    int last = findBound(arr, target, false);\n    return new int[]{ first, last };\n}\nprivate int findBound(int[] arr, int target, boolean isFirst) {\n    int low = 0, high = arr.length - 1;\n    int bound = -1;\n    while (low <= high) {\n        int mid = low + (high - low) / 2;\n        if (arr[mid] == target) {\n            bound = mid;\n            if (isFirst) {\n                high = mid - 1;\n            } else {\n                low = mid + 1;\n            }\n        } else if (arr[mid] < target) {\n            low = mid + 1;\n        } else {\n            high = mid - 1;\n        }\n    }\n    return bound;\n}"
+        },
+        {
+          "id": "example-3",
+          "title": "Search in Rotated Sorted Array",
+          "description": "Find a target in a sorted array that has been rotated at an unknown pivot by using a modified binary search to decide which half is normally ordered.",
+          "difficulty": "Hard",
+          "code": "public int searchRotated(int[] arr, int target) {\n    int low = 0, high = arr.length - 1;\n    while (low <= high) {\n        int mid = low + (high - low) / 2;\n        if (arr[mid] == target) {\n            return mid;\n        }\n        if (arr[low] <= arr[mid]) {\n            if (target >= arr[low] && target < arr[mid]) {\n                high = mid - 1;\n            } else {\n                low = mid + 1;\n            }\n        } else {\n            if (target > arr[mid] && target <= arr[high]) {\n                low = mid + 1;\n            } else {\n                high = mid - 1;\n            }\n        }\n    }\n    return -1;\n}"
+        }
+      ]
+    },
+    {
+      "id": "fast-slow-pointers",
+      "title": "Fast & Slow Pointers",
+      "description": "Utilize two pointers that move through a structure at different speeds (one faster, one slower) to detect certain properties like cycles or mid-points in linear structures.",
+      "icon": "🐢🐇",
+      "useCases": [
+        "Detecting cycles in linked lists or other sequences (Floyd’s Tortoise and Hare algorithm to find loops).",
+        "Finding the middle element of a linked list in one traversal (fast pointer hits the end while slow pointer hits the middle).",
+        "Determining properties of cyclic patterns in numbers (e.g., finding if a number is a 'happy number' by detecting a cycle in the sum-of-squares process).",
+        "Checking for intersection in two sequences by advancing at different rates (like finding a meeting point in race track analogy)."
+      ],
+      "algorithmicBackground": "The fast & slow pointer technique (also known as the tortoise and hare algorithm) is a clever way to detect cycles or find mid-points. The key idea is that one pointer moves one step at a time while another moves two steps at a time. In a cycle scenario, the two will eventually meet, proving a loop exists. For finding a middle, the fast pointer reaches the end in the time the slow pointer reaches the mid. This pattern is particularly useful in linked list problems and any scenario where a sequence might loop back on itself.",
+      "examples": [
+        {
+          "id": "example-1",
+          "title": "Middle of Linked List",
+          "description": "Use a slow and fast pointer to find the middle node of a linked list in a single pass.",
+          "difficulty": "Easy",
+          "code": "public ListNode findMiddle(ListNode head) {\n    ListNode slow = head, fast = head;\n    while (fast != null && fast.next != null) {\n        slow = slow.next;\n        fast = fast.next.next;\n    }\n    return slow;\n}"
+        },
+        {
+          "id": "example-2",
+          "title": "Detect Cycle in Linked List",
+          "description": "Use two pointers moving at different speeds (tortoise and hare) to determine if a linked list has a cycle (they will eventually meet if a cycle exists).",
+          "difficulty": "Medium",
+          "code": "public boolean hasCycle(ListNode head) {\n    ListNode slow = head, fast = head;\n    while (fast != null && fast.next != null) {\n        slow = slow.next;\n        fast = fast.next.next;\n        if (slow == fast) {\n            return true;\n        }\n    }\n    return false;\n}"
+        },
+        {
+          "id": "example-3",
+          "title": "Find Cycle Start Node",
+          "description": "First detect a cycle using fast & slow pointers, then find the exact node where the cycle begins by resetting one pointer to head and moving both one step at a time.",
+          "difficulty": "Hard",
+          "code": "public ListNode detectCycleStart(ListNode head) {\n    ListNode slow = head, fast = head;\n    while (fast != null && fast.next != null) {\n        slow = slow.next;\n        fast = fast.next.next;\n        if (slow == fast) {\n            slow = head;\n            while (slow != fast) {\n                slow = slow.next;\n                fast = fast.next;\n            }\n            return slow;\n        }\n    }\n    return null;\n}"
+        }
+      ]
+    },
+    {
+      "id": "merge-intervals",
+      "title": "Merge Intervals",
+      "description": "Work with intervals (ranges with start and end) by sorting them and then merging or processing overlapping intervals using a sweeping or two-pointer approach.",
+      "icon": "📆",
+      "useCases": [
+        "Merging overlapping time intervals (e.g., consolidating meeting times or calendar events for a person).",
+        "Inserting a new event into a schedule and adjusting for conflicts (e.g., scheduling a new meeting in a calendar).",
+        "Finding common available times or overlaps between schedules (e.g., determining when multiple people are all free).",
+        "Calculating resource needs over time (e.g., figuring out the minimum number of conference rooms required given meeting time slots)."
+      ],
+      "algorithmicBackground": "The merge intervals pattern deals with managing overlapping ranges by sorting the intervals by start time. Once sorted, a single pass can identify overlaps: if the next interval starts before the current one ends, they overlap and can be merged. This approach is greedy and efficient, often O(n log n) due to sorting and O(n) for the merge pass. Handling intervals in a sorted order underlies many scheduling and calendar problems, and can be extended to find intersections or allocate resources based on interval overlaps.",
+      "examples": [
+        {
+          "id": "example-1",
+          "title": "Merge Overlapping Intervals",
+          "description": "Given a collection of intervals, merge all overlapping intervals into one to produce a list of disjoint intervals.",
+          "difficulty": "Medium",
+          "code": "public int[][] mergeIntervals(int[][] intervals) {\n    if (intervals.length <= 1) return intervals;\n    Arrays.sort(intervals, (a, b) -> Integer.compare(a[0], b[0]));\n    List<int[]> merged = new ArrayList<>();\n    int[] current = intervals[0];\n    for (int i = 1; i < intervals.length; i++) {\n        if (intervals[i][0] <= current[1]) {\n            current[1] = Math.max(current[1], intervals[i][1]);\n        } else {\n            merged.add(current);\n            current = intervals[i];\n        }\n    }\n    merged.add(current);\n    return merged.toArray(new int[merged.size()][]);\n}"
+        },
+        {
+          "id": "example-2",
+          "title": "Insert Interval",
+          "description": "Insert a new interval into a sorted list of non-overlapping intervals, merging it with any intervals that overlap with it.",
+          "difficulty": "Hard",
+          "code": "public int[][] insertInterval(int[][] intervals, int[] newInterval) {\n    List<int[]> result = new ArrayList<>();\n    int i = 0;\n    // Add all intervals that end before newInterval begins\n    while (i < intervals.length && intervals[i][1] < newInterval[0]) {\n        result.add(intervals[i++]);\n    }\n    // Merge overlapping intervals with newInterval\n    while (i < intervals.length && intervals[i][0] <= newInterval[1]) {\n        newInterval[0] = Math.min(newInterval[0], intervals[i][0]);\n        newInterval[1] = Math.max(newInterval[1], intervals[i][1]);\n        i++;\n    }\n    result.add(newInterval);\n    // Add the remaining intervals after newInterval\n    while (i < intervals.length) {\n        result.add(intervals[i++]);\n    }\n    return result.toArray(new int[result.size()][]);\n}"
+        },
+        {
+          "id": "example-3",
+          "title": "Interval List Intersections",
+          "description": "Given two sorted lists of intervals, find their intersection (common overlapping intervals) by iterating through both lists simultaneously.",
+          "difficulty": "Medium",
+          "code": "public int[][] intervalIntersection(int[][] A, int[][] B) {\n    List<int[]> result = new ArrayList<>();\n    int i = 0, j = 0;\n    while (i < A.length && j < B.length) {\n        int start = Math.max(A[i][0], B[j][0]);\n        int end = Math.min(A[i][1], B[j][1]);\n        if (start <= end) {\n            result.add(new int[]{ start, end });\n        }\n        if (A[i][1] < B[j][1]) {\n            i++;\n        } else {\n            j++;\n        }\n    }\n    return result.toArray(new int[result.size()][]);\n}"
+        }
+      ]
+    }
+  ]
+}

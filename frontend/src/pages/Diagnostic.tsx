@@ -101,7 +101,7 @@ export const Diagnostic = () => {
     if (diagnosticCompleted && !loading) {
       setTimeout(() => {
         navigate('/dashboard');
-      }, 3000);
+      }, 5000);
     }
   }, [diagnosticCompleted, loading, navigate]);
 

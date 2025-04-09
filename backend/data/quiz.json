@@ -1,108 +1,472 @@
 {
-    "questions": [
-      {
-        "id": "q1",
-        "question": "Finding pairs that sum to a target in a sorted array",
-        "description": "Given a sorted array of integers and a target sum, find a pair of numbers that add up to the target sum.",
-        "options": [
-          { "id": "a", "pattern": "Two Pointers" },
-          { "id": "b", "pattern": "Sliding Window" },
-          { "id": "c", "pattern": "Binary Search" },
-          { "id": "d", "pattern": "Dynamic Programming" }
-        ],
-        "correctAnswer": "a",
-        "explanation": "The Two Pointers pattern is ideal for this problem because we can start with pointers at both ends of the sorted array and move them based on whether their sum is less than or greater than the target."
-      },
-      {
-        "id": "q2",
-        "question": "Finding the longest substring without repeating characters",
-        "description": "Given a string, find the length of the longest substring without repeating characters.",
-        "options": [
-          { "id": "a", "pattern": "Two Pointers" },
-          { "id": "b", "pattern": "Sliding Window" },
-          { "id": "c", "pattern": "Depth-First Search" },
-          { "id": "d", "pattern": "Backtracking" }
-        ],
-        "correctAnswer": "b",
-        "explanation": "The Sliding Window pattern is perfect for this problem because we need to track a window of characters that contains no duplicates, expanding and contracting the window as needed."
-      },
-      {
-        "id": "q3",
-        "question": "Finding the square root of a number without using built-in functions",
-        "description": "Implement a function to calculate the square root of a number without using any built-in square root function.",
-        "options": [
-          { "id": "a", "pattern": "Two Pointers" },
-          { "id": "b", "pattern": "Sliding Window" },
-          { "id": "c", "pattern": "Binary Search" },
-          { "id": "d", "pattern": "Dynamic Programming" }
-        ],
-        "correctAnswer": "c",
-        "explanation": "Binary Search is appropriate here because we can efficiently narrow down the range where the square root must lie by repeatedly checking the middle value."
-      },
-      {
-        "id": "q4",
-        "question": "Finding all possible combinations of elements that sum to a target",
-        "description": "Given an array of distinct integers and a target sum, find all unique combinations where the chosen numbers sum to the target.",
-        "options": [
-          { "id": "a", "pattern": "Greedy Algorithm" },
-          { "id": "b", "pattern": "Sliding Window" },
-          { "id": "c", "pattern": "Dynamic Programming" },
-          { "id": "d", "pattern": "Backtracking" }
-        ],
-        "correctAnswer": "d",
-        "explanation": "Backtracking is ideal for this problem because we need to explore all possible combinations, building partial solutions and abandoning them when they exceed the target sum."
-      },
-      {
-        "id": "q5",
-        "question": "Finding the minimum path sum in a grid",
-        "description": "Given a grid filled with numbers, find the path from top-left to bottom-right with the minimum sum of numbers along the path.",
-        "options": [
-          { "id": "a", "pattern": "Depth-First Search" },
-          { "id": "b", "pattern": "Breadth-First Search" },
-          { "id": "c", "pattern": "Dynamic Programming" },
-          { "id": "d", "pattern": "Greedy Algorithm" }
-        ],
-        "correctAnswer": "c",
-        "explanation": "Dynamic Programming is perfect for this problem because the minimum path to any cell depends on the minimum paths to the cells above and to the left, creating overlapping subproblems."
-      },
-      {
-        "id": "q6",
-        "question": "Checking if a string is a palindrome",
-        "description": "Given a string, determine if it is a palindrome, considering only alphanumeric characters and ignoring cases.",
-        "options": [
-          { "id": "a", "pattern": "Two Pointers" },
-          { "id": "b", "pattern": "Stack" },
-          { "id": "c", "pattern": "Sliding Window" },
-          { "id": "d", "pattern": "Recursion" }
-        ],
-        "correctAnswer": "a",
-        "explanation": "The Two Pointers pattern is ideal for palindrome checking because we can compare characters from both ends of the string, moving inward until the pointers meet in the middle."
-      },
-      {
-        "id": "q7",
-        "question": "Finding the kth largest element in an array",
-        "description": "Given an unsorted array, find the kth largest element without sorting the entire array.",
-        "options": [
-          { "id": "a", "pattern": "Heap (Priority Queue)" },
-          { "id": "b", "pattern": "Quick Select" },
-          { "id": "c", "pattern": "Binary Search" },
-          { "id": "d", "pattern": "Dynamic Programming" }
-        ],
-        "correctAnswer": "b",
-        "explanation": "Quick Select is a variation of the Quick Sort algorithm that efficiently finds the kth smallest/largest element in an unsorted array with an average time complexity of O(n)."
-      },
-      {
-        "id": "q8",
-        "question": "Detecting a cycle in a linked list",
-        "description": "Given a linked list, determine if it has a cycle (i.e., whether a node in the list points to a previously visited node).",
-        "options": [
-          { "id": "a", "pattern": "Two Pointers (Fast & Slow)" },
-          { "id": "b", "pattern": "Hash Set" },
-          { "id": "c", "pattern": "Stack" },
-          { "id": "d", "pattern": "Breadth-First Search" }
-        ],
-        "correctAnswer": "a",
-        "explanation": "The Two Pointers pattern (specifically the fast and slow pointer technique, also known as Floyd's Cycle-Finding Algorithm) is perfect for detecting cycles in a linked list. The fast pointer moves twice as fast as the slow pointer, and if there's a cycle, they will eventually meet."
-      }
-    ]
-  }
+  "questions": [
+    {
+      "id": "q1",
+      "question": "Number of Islands",
+      "description": "Given a 2D grid of '1's (land) and '0's (water), count the number of islands (connected regions of land).",
+      "options": [
+        { "id": "a", "pattern": "Depth-First Search (DFS)" },
+        { "id": "b", "pattern": "Greedy" },
+        { "id": "c", "pattern": "Dynamic Programming" },
+        { "id": "d", "pattern": "Union Find" }
+      ],
+      "correctAnswer": "a",
+      "explanation": "Depth-First Search is appropriate as it allows exploring each island fully by visiting all connected land tiles recursively (or via a stack), marking them as visited. Greedy strategies don't apply here since there's no immediate local choice that leads to a correct count of islands. Dynamic Programming is not relevant because there's no overlapping subproblem or optimization, just traversal. Union Find (Disjoint Set Union) could solve the problem by unioning adjacent land cells and counting sets, but it's more complex to implement and not typically considered the straightforward solution pattern compared to DFS."
+    },
+    {
+      "id": "q2",
+      "question": "Root-to-Leaf Path Sum",
+      "description": "Given a binary tree and a target sum, determine if there exists a root-to-leaf path such that the sum of the node values equals the target.",
+      "options": [
+        { "id": "a", "pattern": "Breadth-First Search (BFS)" },
+        { "id": "b", "pattern": "Dynamic Programming" },
+        { "id": "c", "pattern": "Backtracking" },
+        { "id": "d", "pattern": "Depth-First Search (DFS)" }
+      ],
+      "correctAnswer": "d",
+      "explanation": "Depth-First Search is the appropriate approach because you can recursively traverse downward, accumulating the sum, and stop when a leaf is reached. This efficiently checks paths without exploring nodes level-by-level unnecessarily. Breadth-First Search could find a path as well, but it's not as natural for this problem since BFS would need to carry running sums for each path and still explore many nodes even after a valid path is found. Dynamic Programming doesn't fit, as there's no subproblem reuse or optimal substructure in simply checking path sums. Backtracking isn't explicitly needed here; while DFS does involve unwinding the recursion (similar to backtracking), this problem is a straightforward traversal rather than a combinatorial search that typically warrants the 'backtracking' label."
+    },
+    {
+      "id": "q3",
+      "question": "All Root-to-Leaf Paths",
+      "description": "Given a binary tree, return all paths from the root to each leaf node.",
+      "options": [
+        { "id": "a", "pattern": "Backtracking" },
+        { "id": "b", "pattern": "Depth-First Search (DFS)" },
+        { "id": "c", "pattern": "Greedy" },
+        { "id": "d", "pattern": "Breadth-First Search (BFS)" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Depth-First Search is the correct pattern because it naturally explores each root-to-leaf path via recursion, collecting nodes along the way and backtracking as it returns up the tree to explore new paths. Backtracking, as a general concept, is involved in the DFS process (you backtrack after reaching a leaf to explore other paths), but typically we describe this problem as a DFS traversal of a tree rather than a backtracking puzzle with arbitrary choices. Breadth-First Search is not ideal here; while it can traverse level by level, keeping track of the entire path for each node in BFS would be memory-intensive and unnecessary for retrieving all root-to-leaf paths. Greedy is irrelevant because there's no optimization or decision making at each step; we need all paths, not an optimal one."
+    },
+    {
+      "id": "q4",
+      "question": "Cycle Detection in Directed Graph",
+      "description": "Given a directed graph, determine if the graph contains a cycle.",
+      "options": [
+        { "id": "a", "pattern": "Union Find" },
+        { "id": "b", "pattern": "Greedy" },
+        { "id": "c", "pattern": "Depth-First Search (DFS)" },
+        { "id": "d", "pattern": "Breadth-First Search (BFS)" }
+      ],
+      "correctAnswer": "c",
+      "explanation": "Depth-First Search is typically used to detect cycles in a directed graph by using a recursion stack or colors (white/gray/black) to mark nodes. This way, if during DFS we visit a node that is already in the current recursion stack, we've found a cycle. Breadth-First Search isn't commonly used directly for cycle detection in directed graphs; while you can detect a cycle via topological sorting (a BFS-based Kahn's algorithm) by noticing if not all nodes get processed, it's a less direct approach than DFS with recursion tracking. Union Find works well for cycle detection in undirected graphs, but for directed graphs it doesn't straightforwardly detect cycles because the connectivity structure is different (direction matters). Greedy does not apply, as cycle detection isn't an optimization or greedy choice problem."
+    },
+    {
+      "id": "q5",
+      "question": "Binary Tree Level Order Traversal",
+      "description": "Given a binary tree, return the level order traversal of its nodes' values (i.e., level by level from the root).",
+      "options": [
+        { "id": "a", "pattern": "Depth-First Search (DFS)" },
+        { "id": "b", "pattern": "Backtracking" },
+        { "id": "c", "pattern": "Breadth-First Search (BFS)" },
+        { "id": "d", "pattern": "Greedy" }
+      ],
+      "correctAnswer": "c",
+      "explanation": "Breadth-First Search is the correct approach for level order traversal since it visits nodes level by level using a queue. Depth-First Search would traverse deeply (pre-order, in-order, or post-order) and not naturally produce a level-by-level ordering without additional bookkeeping. Backtracking is not relevant here, as we are not exploring decision paths but simply traversing a fixed tree structure. Greedy doesn't apply because there's no optimization or choice; we need to visit all nodes in the required order, which BFS handles inherently."
+    },
+    {
+      "id": "q6",
+      "question": "Shortest Path in a Grid",
+      "description": "Given a 2D grid of open cells (0) and blocked cells (1), find the minimum number of steps required to get from the top-left corner to the bottom-right corner (moving up/down/left/right).",
+      "options": [
+        { "id": "a", "pattern": "Breadth-First Search (BFS)" },
+        { "id": "b", "pattern": "Depth-First Search (DFS)" },
+        { "id": "c", "pattern": "Greedy" },
+        { "id": "d", "pattern": "Backtracking" }
+      ],
+      "correctAnswer": "a",
+      "explanation": "Breadth-First Search is appropriate for finding the shortest path in an unweighted grid. BFS explores layer by layer from the start, guaranteeing that the first time we reach the target is via the shortest path. Depth-First Search would potentially go down a long path that isn't shortest, necessitating exploring many paths before finding the minimum path. Backtracking (essentially DFS trying all possibilities) would eventually find the shortest path but with much unnecessary exploration compared to BFS. Greedy methods (like always moving toward the destination or some heuristic) can get stuck or fail to find the true shortest path in a grid with obstacles, as the locally optimal move might not lead to a global shortest solution."
+    },
+    {
+      "id": "q7",
+      "question": "Minimum Depth of Binary Tree",
+      "description": "Given a binary tree, find its minimum depth (the length of the shortest path from the root down to a leaf node).",
+      "options": [
+        { "id": "a", "pattern": "Depth-First Search (DFS)" },
+        { "id": "b", "pattern": "Greedy" },
+        { "id": "c", "pattern": "Dynamic Programming" },
+        { "id": "d", "pattern": "Breadth-First Search (BFS)" }
+      ],
+      "correctAnswer": "d",
+      "explanation": "Breadth-First Search is ideal for finding the minimum depth of a binary tree because BFS traverses level by level. The first time we encounter a leaf node in BFS, we know it's the shallowest leaf (minimum depth). Depth-First Search could eventually find the minimum depth, but it might explore many deeper paths before finding a shallower leaf, making it less efficient for this particular task. Greedy doesn't make sense here since there's no heuristic or choice to optimize at each node – you must explore until a leaf is found. Dynamic Programming is not applicable because this is not about combining sub-results or optimizing over overlapping subproblems; it's about traversing the tree to find a shallow leaf."
+    },
+    {
+      "id": "q8",
+      "question": "Word Ladder Shortest Transformation",
+      "description": "Given a begin word, an end word, and a dictionary of valid words, find the fewest single-letter transformations needed to change the begin word into the end word (each intermediate word must exist in the dictionary).",
+      "options": [
+        { "id": "a", "pattern": "Depth-First Search (DFS)" },
+        { "id": "b", "pattern": "Breadth-First Search (BFS)" },
+        { "id": "c", "pattern": "Dijkstra's Algorithm" },
+        { "id": "d", "pattern": "Backtracking" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Breadth-First Search is correct because this problem can be modeled as an unweighted graph (words as nodes, edges between words that differ by one letter), and BFS will find the shortest transformation sequence. Depth-First Search would explore one sequence deeply and might miss shorter paths until exhausting longer ones. Dijkstra's Algorithm isn't necessary here since all edges (transformations) have equal weight; BFS already finds the shortest path without the overhead of Dijkstra's. Backtracking (trying all possible transformations recursively) would eventually find the shortest path but in a very inefficient manner, exploring many unnecessary sequences compared to BFS."
+    },
+    {
+      "id": "q9",
+      "question": "Two Sum (Sorted Array)",
+      "description": "Given a sorted array of integers and a target value, find two numbers in the array that add up to the target (return their indices or positions).",
+      "options": [
+        { "id": "a", "pattern": "Binary Search" },
+        { "id": "b", "pattern": "Two Pointers" },
+        { "id": "c", "pattern": "Sliding Window" },
+        { "id": "d", "pattern": "Greedy" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Two Pointers is the correct pattern: with the array sorted, we can use one pointer at the start and one at the end and move them inward based on the sum comparison to efficiently find the target pair. A Binary Search approach would involve, for each element, searching for the complement via binary search, resulting in O(n log n) time, which is less efficient than the O(n) two-pointer solution; also, binary search alone isn't a full solution, it's combined with a loop. Sliding Window isn't applicable because this problem isn't about a contiguous subarray sum but two individual numbers anywhere in the array. Greedy doesn't fit here either, since there's no iterative choice that guarantees a correct pair (you must consider the array as a whole rather than making a locally optimal choice)."
+    },
+    {
+      "id": "q10",
+      "question": "Valid Palindrome Check",
+      "description": "Given a string, determine if it is a palindrome, considering only alphanumeric characters and ignoring cases.",
+      "options": [
+        { "id": "a", "pattern": "Recursion" },
+        { "id": "b", "pattern": "Dynamic Programming" },
+        { "id": "c", "pattern": "Greedy" },
+        { "id": "d", "pattern": "Two Pointers" }
+      ],
+      "correctAnswer": "d",
+      "explanation": "Two Pointers is the correct approach: set one pointer at the start and one at the end of the string, and move them towards each other, comparing characters to check for palindrome. Recursion could be used to check a palindrome by comparing first and last characters and recursing inward, but that's effectively the same logic as two pointers and adds unnecessary overhead (and risk of stack overflow on very long strings). Dynamic Programming is overkill for just checking a single string's palindrome property (DP is more useful for problems like finding the longest palindromic substring, not for a yes/no check of a given string). Greedy doesn't apply at all; there's no decision or optimization step in verifying a palindrome, just straightforward comparisons."
+    },
+    {
+      "id": "q11",
+      "question": "Container With Most Water",
+      "description": "Given an array of positive integers representing heights of vertical lines, find two lines that together with the x-axis form a container that holds the most water (return the maximum area).",
+      "options": [
+        { "id": "a", "pattern": "Two Pointers" },
+        { "id": "b", "pattern": "Dynamic Programming" },
+        { "id": "c", "pattern": "Divide and Conquer" },
+        { "id": "d", "pattern": "Sliding Window" }
+      ],
+      "correctAnswer": "a",
+      "explanation": "Two Pointers is the correct strategy for the water container problem: start with one pointer at each end of the array and compute the area, then move the pointer with the shorter line inward, since moving the taller line would not increase area if the shorter line remains the limiting height. This approach efficiently finds the maximum area in O(n) time. Dynamic Programming isn't useful here, as there's no subproblem breakdown that simplifies the problem. Divide and Conquer isn't a typical approach for this problem either; you can't easily divide the problem into independent subproblems because the best container might span across the division, so that approach fails or is complicated. Sliding Window is not applicable because we are not looking for a contiguous sequence of lines; we specifically need two line indices and it's not about summing or averaging values within a window."
+    },
+    {
+      "id": "q12",
+      "question": "Triplet Sum Equals Zero",
+      "description": "Given an array of integers, find all unique triplets in the array that sum up to zero.",
+      "options": [
+        { "id": "a", "pattern": "Backtracking" },
+        { "id": "b", "pattern": "Greedy" },
+        { "id": "c", "pattern": "Two Pointers" },
+        { "id": "d", "pattern": "Dynamic Programming" }
+      ],
+      "correctAnswer": "c",
+      "explanation": "Two Pointers is the effective pattern when solving the three-sum problem. Typically, you sort the array and then for each element, use two pointers (one starting right after the fixed element and one at the end) to find pairs that sum to the negative of the fixed element. This approach avoids redundant combinations and runs in O(n^2). Backtracking would involve recursively trying all combinations of three numbers (which is exponential in complexity) – far less efficient than the two-pointer method after sorting. Greedy doesn't apply because finding a specific sum of three numbers isn't about making a single optimal choice at each step; it requires checking combinations. Dynamic Programming isn't suitable either, as this isn't about optimal substructures or counting solutions – it’s about finding all specific combinations that meet a criterion, which is better done with the two-pointer technique after sorting."
+    },
+    {
+      "id": "q13",
+      "question": "Maximum Sum Subarray of Size K",
+      "description": "Given an array of integers and an integer K, find the maximum sum of any contiguous subarray of length K.",
+      "options": [
+        { "id": "a", "pattern": "Sliding Window" },
+        { "id": "b", "pattern": "Dynamic Programming" },
+        { "id": "c", "pattern": "Two Pointers" },
+        { "id": "d", "pattern": "Greedy" }
+      ],
+      "correctAnswer": "a",
+      "explanation": "Sliding Window is the correct approach for a fixed-length subarray maximum sum. By maintaining a window of size K and sliding it across the array (adding the next element and removing the previous one from the sum), we can compute the sum of each window in O(1) time after the first, resulting in O(n) overall. Dynamic Programming isn't needed here; a DP solution would be like computing prefix sums or Kadane's algorithm for any length, but for a fixed length K, the sliding window is straightforward. Two Pointers in a generic sense might be used to define the window boundaries, but the recognized pattern here is specifically a sliding window since the window size is fixed (two pointers as a term is too broad and doesn't emphasize maintaining the window sum). Greedy doesn't apply, as there's no single greedy choice that finds the maximum sum without checking all possible windows; you must evaluate all windows of length K."
+    },
+    {
+      "id": "q14",
+      "question": "Longest Substring Without Repeating Characters",
+      "description": "Given a string, find the length of the longest substring that contains no repeated characters.",
+      "options": [
+        { "id": "a", "pattern": "Two Pointers" },
+        { "id": "b", "pattern": "Dynamic Programming" },
+        { "id": "c", "pattern": "Sliding Window" },
+        { "id": "d", "pattern": "Backtracking" }
+      ],
+      "correctAnswer": "c",
+      "explanation": "Sliding Window is the appropriate pattern here. We expand the window to include new characters and contract it from the left when a repeat is encountered, keeping track of characters seen (often with a hash map) to ensure the substring within the window has all unique characters. While we technically use two indices (pointers) to represent the window, simply saying \"Two Pointers\" is too generic; the key is adjusting a window size dynamically based on the repeating character constraint, which is the sliding window technique. Dynamic Programming isn't used for this problem because we're not solving an optimization via subproblem reuse; instead, we're maintaining a running constraint. Backtracking would be an extremely inefficient brute-force approach (trying out all substrings), whereas sliding window achieves this in linear time."
+    },
+    {
+      "id": "q15",
+      "question": "Smallest Subarray with Given Sum",
+      "description": "Given an array of positive integers and a target S, find the length of the smallest contiguous subarray whose sum is at least S. If no such subarray exists, return 0.",
+      "options": [
+        { "id": "a", "pattern": "Two Pointers" },
+        { "id": "b", "pattern": "Sliding Window" },
+        { "id": "c", "pattern": "Dynamic Programming" },
+        { "id": "d", "pattern": "Greedy" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Sliding Window is the correct approach. We can start with both pointers at the beginning and expand the window to accumulate a sum >= S, then shrink the window from the left as much as possible while still meeting the target, tracking the minimum length found. Two Pointers as a general concept is involved, but here we specifically adjust a window of contiguous elements – a textbook sliding window scenario. Dynamic Programming doesn't fit because this problem is about scanning for a condition rather than building up solutions to subproblems. Greedy doesn't directly apply either; you can't, for example, greedily pick the largest numbers first out of order, since the subarray has to be contiguous and you have to explore different window positions to find the minimum length."
+    },
+    {
+      "id": "q16",
+      "question": "Find All Anagrams in a String",
+      "description": "Given a string and a pattern, find all starting indices of substrings in the string that are anagrams of the pattern.",
+      "options": [
+        { "id": "a", "pattern": "Backtracking" },
+        { "id": "b", "pattern": "Two Pointers" },
+        { "id": "c", "pattern": "Dynamic Programming" },
+        { "id": "d", "pattern": "Sliding Window" }
+      ],
+      "correctAnswer": "d",
+      "explanation": "Sliding Window is the correct pattern to find anagrams of a pattern in a string. We use a window of the length of the pattern that moves along the string, and maintain counts of characters in the window to check if it matches the character frequency of the pattern. Backtracking (like generating all permutations of the pattern and searching) would be incredibly inefficient, since generating all anagrams of the pattern is factorial in complexity. Two Pointers by itself isn't descriptive of how to check for an anagram condition; we specifically need to slide a window and compare counts, not just use two indices arbitrarily. Dynamic Programming is not applicable, as we're not combining solutions or optimizing substructures; it's a direct search problem handled well by the sliding window technique with hashing of counts."
+    },
+    {
+      "id": "q17",
+      "question": "Subsets of a Set",
+      "description": "Given a set of distinct integers, return all possible subsets (the power set).",
+      "options": [
+        { "id": "a", "pattern": "Dynamic Programming" },
+        { "id": "b", "pattern": "Depth-First Search (DFS)" },
+        { "id": "c", "pattern": "Bit Manipulation" },
+        { "id": "d", "pattern": "Backtracking" }
+      ],
+      "correctAnswer": "d",
+      "explanation": "Backtracking is the correct approach to generate all subsets. You can build subsets by deciding for each element whether to include it or not, recursively exploring both possibilities and backtracking to try other combinations. Depth-First Search here would essentially describe the same recursive process, but when we talk about generating combinations, we typically refer to it as backtracking (DFS is a more general term and doesn't emphasize the combinatorial choice aspect as clearly). Dynamic Programming isn't used to enumerate all subsets; DP could count subsets that satisfy some criteria, but to list all subsets, a search/backtracking approach is natural. Bit Manipulation is an alternative method to generate subsets (using binary masks to represent inclusion/exclusion of elements), but that's more of a brute-force algorithmic trick rather than the systematic backtracking pattern usually expected for this problem."
+    },
+    {
+      "id": "q18",
+      "question": "Word Search in Grid",
+      "description": "Given a 2D board of characters and a word, check if the word exists in the grid by tracing a path through adjacent cells (without reusing any cell).",
+      "options": [
+        { "id": "a", "pattern": "Depth-First Search (DFS)" },
+        { "id": "b", "pattern": "Backtracking" },
+        { "id": "c", "pattern": "Breadth-First Search (BFS)" },
+        { "id": "d", "pattern": "Dynamic Programming" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Backtracking is the appropriate technique for the Word Search problem. We attempt to build the given word by exploring the grid depth-first, and if a path doesn't work out (mismatch or dead end), we backtrack to try a different direction. While this is done via DFS traversal of the grid, it crucially involves backtracking (unmarking visited cells and undoing choices) when a path fails, which is why it's categorized as backtracking. BFS is not a natural fit here because BFS would explore all cells level by level without effectively narrowing down the sequence of characters (and would require managing partial word matches on many paths simultaneously). Dynamic Programming isn't relevant since there's no overlapping subproblem; each path exploration is unique. Plain DFS without the concept of backtracking wouldn't correctly handle the need to backtrack on a wrong path (the terms are closely related here, but the intended pattern to emphasize is backtracking due to the trial-and-error search nature)."
+    },
+    {
+      "id": "q19",
+      "question": "Permutations of Distinct Numbers",
+      "description": "Given a list of distinct numbers, return all possible permutations of those numbers.",
+      "options": [
+        { "id": "a", "pattern": "Greedy" },
+        { "id": "b", "pattern": "Dynamic Programming" },
+        { "id": "c", "pattern": "Backtracking" },
+        { "id": "d", "pattern": "Depth-First Search (DFS)" }
+      ],
+      "correctAnswer": "c",
+      "explanation": "Backtracking is the correct approach to generate all permutations. We construct permutations by choosing a number for the first position, then recursively permuting the remaining numbers, backtracking (undoing the choice) and trying the next number for that position, and so on. Greedy is not applicable since generating all permutations isn't about making an optimal choice – it's exhaustive. Dynamic Programming is not used because we aren't optimizing or using subproblem solutions; we're enumerating all possibilities. Simply saying DFS isn't precise enough here; although the permutation generation uses depth-first recursion, it's specifically backtracking because we are building a solution (permutation) incrementally and undoing choices. DFS typically refers to traversing nodes, whereas here we are generating combinatorial configurations with backtracking."
+    },
+    {
+      "id": "q20",
+      "question": "Combination Sum",
+      "description": "Given a set of distinct positive integers and a target sum, find all unique combinations of the numbers that add up to the target (you may use each number multiple times).",
+      "options": [
+        { "id": "a", "pattern": "Backtracking" },
+        { "id": "b", "pattern": "Dynamic Programming" },
+        { "id": "c", "pattern": "Greedy" },
+        { "id": "d", "pattern": "Breadth-First Search (BFS)" }
+      ],
+      "correctAnswer": "a",
+      "explanation": "Backtracking is the appropriate pattern for finding all combinations that sum to a target. We try including a number and recursively attempt to reach the target with updated sum, backtrack when the sum exceeds the target or when we've considered that number, and try the next number. Dynamic Programming can determine the number of combinations or if at least one combination exists (like the subset sum or coin change problems), but to explicitly list all combinations, backtracking (depth-first search through combination space) is the typical approach. Greedy fails here because a greedy choice (like always pick the largest possible number first) can miss valid combinations or not find the combination with the right mix of numbers. BFS isn't commonly used for this kind of combination generation; while you could incrementally build combinations level by level, it would be inefficient in terms of memory and still essentially brute force – the DFS/backtracking approach is clearer and more efficient for generating combinations."
+    },
+    {
+      "id": "q21",
+      "question": "Climbing Stairs",
+      "description": "A staircase has n steps, and you can climb 1 or 2 steps at a time. Given n, find how many distinct ways you can reach the top of the staircase.",
+      "options": [
+        { "id": "a", "pattern": "Dynamic Programming" },
+        { "id": "b", "pattern": "Recursion" },
+        { "id": "c", "pattern": "Greedy" },
+        { "id": "d", "pattern": "Backtracking" }
+      ],
+      "correctAnswer": "a",
+      "explanation": "Dynamic Programming is the classic solution for the climbing stairs problem, recognizing that the number of ways to reach step n is the sum of ways to reach step n-1 and n-2. This yields a recurrence that we can compute iteratively or recursively with memoization (essentially computing Fibonacci numbers). Recursion alone (without memoization) can compute the number of ways by exploring each choice (take 1 step or 2 steps), but it will be extremely inefficient (exponential time) for large n. DP is the optimized form of this recursion with caching. Greedy is not applicable because there's no greedy choice to make; it's about counting all possible sequences of moves, not optimizing a single sequence. Backtracking (e.g., trying all sequences of 1s and 2s) would eventually count the ways but very inefficiently, essentially performing the same exponential work as naive recursion – DP avoids this by storing results of subproblems."
+    },
+    {
+      "id": "q22",
+      "question": "Coin Change (Minimum Coins)",
+      "description": "Given an amount and a list of coin denominations, find the minimum number of coins required to make up that amount (assuming an unlimited supply of each coin). If it's not possible to form the amount, return -1.",
+      "options": [
+        { "id": "a", "pattern": "Greedy" },
+        { "id": "b", "pattern": "Backtracking" },
+        { "id": "c", "pattern": "Union Find" },
+        { "id": "d", "pattern": "Dynamic Programming" }
+      ],
+      "correctAnswer": "d",
+      "explanation": "Dynamic Programming is the correct approach for the minimum coin change problem. We build up a DP array where dp[x] represents the fewest coins needed for amount x, using the recurrence dp[x] = min(dp[x - coin] + 1 for each coin), and fill this for all values up to the target amount. Greedy is often not reliable for coin change unless the coin system is canonical (for example, a greedy approach fails for certain denominations where the locally optimal coin pick isn't part of the global optimal solution). Backtracking could try every combination of coins to find the minimum, but that is extremely inefficient (exponential time). Union Find is entirely unrelated; that's a disjoint set data structure for connectivity problems, not for computing coin combinations."
+    },
+    {
+      "id": "q23",
+      "question": "Longest Increasing Subsequence",
+      "description": "Given an unsorted array of integers, find the length of the longest strictly increasing subsequence.",
+      "options": [
+        { "id": "a", "pattern": "Greedy" },
+        { "id": "b", "pattern": "Binary Search" },
+        { "id": "c", "pattern": "Dynamic Programming" },
+        { "id": "d", "pattern": "Divide and Conquer" }
+      ],
+      "correctAnswer": "c",
+      "explanation": "Dynamic Programming is the classic solution for finding the length of the longest increasing subsequence (LIS). We can use dp[i] to represent the length of the LIS ending at index i, and build it up by checking all j < i and updating dp[i] = max(dp[i], dp[j] + 1) for all j where arr[j] < arr[i]. This yields an O(n^2) solution. Greedy alone doesn't work for LIS because choosing local increases might cause you to miss a longer subsequence that requires accepting a smaller increase early on. There is a known optimization for LIS that uses a greedy strategy with Binary Search (maintaining a list of potential tails of increasing subsequences), but that is a specific algorithmic improvement rather than the fundamental DP pattern typically taught for LIS. Divide and Conquer isn't an obvious approach for LIS; there's no straightforward way to split the sequence into subproblems and combine results for this problem."
+    },
+    {
+      "id": "q24",
+      "question": "Partition Equal Subset Sum",
+      "description": "Given a set of positive integers, determine if the set can be partitioned into two subsets with equal sum.",
+      "options": [
+        { "id": "a", "pattern": "Backtracking" },
+        { "id": "b", "pattern": "Dynamic Programming" },
+        { "id": "c", "pattern": "Greedy" },
+        { "id": "d", "pattern": "Two Pointers" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Dynamic Programming is the appropriate approach for the equal subset sum (partition) problem. Typically, this is solved by a subset sum DP: for a total sum S, we check if there's a subset that sums to S/2 (assuming S is even) by using a boolean DP or bitset for achievable sums. Backtracking could attempt to assign numbers to two subsets and check if a valid partition exists, but that would be exponential in the worst case. Greedy fails here (for example, greedily putting the largest number in the lighter subset doesn't always lead to a correct partition). Two Pointers doesn't apply, since this isn't about sorting or using two indices to find something in a sequence, but rather about choosing a subset of numbers that meets a criterion."
+    },
+    {
+      "id": "q25",
+      "question": "Binary Search in Sorted Array",
+      "description": "Given a sorted array of integers and a target value, determine if the target exists in the array, returning its index if found or -1 if not found.",
+      "options": [
+        { "id": "a", "pattern": "Linear Search" },
+        { "id": "b", "pattern": "Binary Search" },
+        { "id": "c", "pattern": "Two Pointers" },
+        { "id": "d", "pattern": "Dynamic Programming" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Binary Search is the correct algorithm for finding an element in a sorted array, operating in O(log n) time by repeatedly dividing the search interval in half. Linear Search would scan each element one by one, which is O(n) and not taking advantage of the sorted order. Two Pointers is not relevant here, because that's used for scenarios like pair-sums or comparing two lists; searching for a single value doesn't need two simultaneous indices scanning from ends. Dynamic Programming has no role in a simple lookup problem like this; there's no subproblem or optimization, just a direct search."
+    },
+    {
+      "id": "q26",
+      "question": "First Bad Version",
+      "description": "You have n versions of a product and an API isBadVersion(x) which returns whether version x is bad. All versions after a bad version are also bad. Find the earliest bad version.",
+      "options": [
+        { "id": "a", "pattern": "Binary Search" },
+        { "id": "b", "pattern": "Linear Search" },
+        { "id": "c", "pattern": "Divide and Conquer" },
+        { "id": "d", "pattern": "Dynamic Programming" }
+      ],
+      "correctAnswer": "a",
+      "explanation": "Binary Search is the correct strategy to identify the first bad version. By checking the middle version, we can decide whether the first bad version lies to the left (if the middle is bad) or to the right (if the middle is good) and eliminate half of the versions each time. Linear Search (checking versions one by one from 1 upwards) would find the answer but in the worst case requires checking O(n) versions, which is too slow if n is large. Divide and Conquer is a broad concept that binary search falls under, but simply stating 'divide and conquer' isn't specific enough; the well-known solution is a binary search. Dynamic Programming is not applicable because we are not combining results of subproblems; it's purely a search problem in a monotonic space of versions."
+    },
+    {
+      "id": "q27",
+      "question": "Search in Rotated Sorted Array",
+      "description": "Given a rotated sorted array (i.e., an array that was originally sorted but then rotated at some pivot) and a target value, find the index of the target if it exists, or return -1 if it doesn't.",
+      "options": [
+        { "id": "a", "pattern": "Linear Search" },
+        { "id": "b", "pattern": "Greedy" },
+        { "id": "c", "pattern": "Two Pointers" },
+        { "id": "d", "pattern": "Binary Search" }
+      ],
+      "correctAnswer": "d",
+      "explanation": "Binary Search is the intended approach for a rotated sorted array. Even though the array is rotated, it consists of two sorted halves; by comparing the target with the middle element and determining which half is sorted and whether the target lies in that half, we can decide which half to continue searching in, keeping the search O(log n). Linear Search would trivially find the target in O(n) by scanning, but that loses the efficiency that sorting offers. Greedy doesn't apply, as there's no sequence of choices or optimization—it's a direct search. Two Pointers is not relevant; we don't gain anything by scanning from both ends or something similar here, since the power of sorted order is better exploited by binary search logic."
+    },
+    {
+      "id": "q28",
+      "question": "Find Peak Element",
+      "description": "Given an array of integers (with no guarantees about sorting), an element is considered a peak if it is greater than its neighbors. Find the index of any one peak element. (Assume the array has at least one peak, and treat out-of-bounds neighbors as -∞.)",
+      "options": [
+        { "id": "a", "pattern": "Linear Scan" },
+        { "id": "b", "pattern": "Greedy" },
+        { "id": "c", "pattern": "Binary Search" },
+        { "id": "d", "pattern": "Dynamic Programming" }
+      ],
+      "correctAnswer": "c",
+      "explanation": "Binary Search (or a binary-search-like technique) is an efficient way to find a peak element in O(log n) by comparing the middle element with its neighbor and deciding which half has a guaranteed peak. If the middle element is smaller than the right neighbor, then a peak must exist on the right half, otherwise a peak exists on the left half (this works because of the way the elements relate). A Linear Scan would find a peak by checking each element and is O(n), which is less efficient than the binary search approach for large arrays. Greedy is not a clear paradigm here because there's no iterative decision process to converge to a peak; you either find one or move accordingly as dictated by binary search logic, not by a greedy choice. Dynamic Programming is not relevant; we're not combining solutions of subarrays to find a peak, just using comparisons and elimination."
+    },
+    {
+      "id": "q29",
+      "question": "Detect Cycle in Linked List",
+      "description": "Given the head of a linked list, determine if the linked list contains a cycle (i.e., if a node in the list is reachable again by continuously following next pointers).",
+      "options": [
+        { "id": "a", "pattern": "Recursion" },
+        { "id": "b", "pattern": "Two Pointers" },
+        { "id": "c", "pattern": "Fast & Slow Pointers" },
+        { "id": "d", "pattern": "Hash Table" }
+      ],
+      "correctAnswer": "c",
+      "explanation": "Fast & Slow Pointers (the Floyd's Tortoise and Hare algorithm) is the ideal approach to detect a cycle in a linked list. By moving one pointer one step at a time and another two steps at a time, if they ever meet, a cycle exists. Recursion isn't applicable in a straightforward way—naively recursing would not detect a cycle and could overflow the stack if one exists. Two Pointers (moving at the same speed or other configurations) without the fast/slow speed difference would not detect a cycle; just having two pointers doesn't help unless one is moving faster. A Hash Table (or Set) can be used to record visited nodes and detect a revisit, which would also detect a cycle, but that uses extra space. The fast & slow pointer method achieves the goal in O(n) time without additional memory."
+    },
+    {
+      "id": "q30",
+      "question": "Find Start of Linked List Cycle",
+      "description": "Given the head of a linked list that contains a cycle, return the node where the cycle begins (the first node that is part of the cycle), or null if there is no cycle.",
+      "options": [
+        { "id": "a", "pattern": "Hash Table" },
+        { "id": "b", "pattern": "Fast & Slow Pointers" },
+        { "id": "c", "pattern": "Two Pointers" },
+        { "id": "d", "pattern": "Backtracking" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Fast & Slow Pointers (Floyd's cycle-finding algorithm) can not only detect a cycle but also find the starting node of the cycle. After a cycle is detected by fast and slow meeting, resetting one pointer to head and moving both at the same speed will lead them to meet at the cycle start. A Hash Table (storing visited nodes) could identify the start of the cycle by noticing the first repeated node, but that requires O(n) extra space, whereas the fast/slow technique uses O(1) space. Two Pointers in a generic sense isn't sufficient unless you apply the specific Floyd's algorithm; just any two-pointer setup won't locate the cycle start. Backtracking is not applicable here—there's no search tree or combination to try, just a structural detection problem."
+    },
+    {
+      "id": "q31",
+      "question": "Find Middle of Linked List",
+      "description": "Given the head of a singly linked list, find the middle node of the linked list. If the list has an even number of nodes, return the second middle node.",
+      "options": [
+        { "id": "a", "pattern": "Fast & Slow Pointers" },
+        { "id": "b", "pattern": "Two Pointers" },
+        { "id": "c", "pattern": "Binary Search" },
+        { "id": "d", "pattern": "Recursion" }
+      ],
+      "correctAnswer": "a",
+      "explanation": "Fast & Slow Pointers is the ideal approach to find the middle of a linked list in a single pass. By moving a slow pointer one step at a time and a fast pointer two steps at a time, when the fast pointer reaches the end, the slow pointer will be at the middle. Two Pointers moving at the same speed from both ends isn't applicable here because in a singly linked list you cannot easily start at the end, and even if you could, they'd meet in the middle but that requires knowing the length in advance or using extra space. Binary Search cannot be directly applied to linked lists since they are not indexed and not necessarily sorted by values; the problem is positional, not a search by value. Recursion doesn't help to find the middle in one pass — you could traverse to find length and then recurse to the middle, but that's effectively two passes (and uses stack space). The fast & slow pointer technique is the straightforward one-pass solution."
+    },
+    {
+      "id": "q32",
+      "question": "Happy Number",
+      "description": "Given a positive integer, repeatedly replace the number by the sum of the squares of its digits. If this process eventually reaches 1, the number is \"happy\". Determine whether the given number is happy (ends in 1 or not).",
+      "options": [
+        { "id": "a", "pattern": "Hash Table" },
+        { "id": "b", "pattern": "Backtracking" },
+        { "id": "c", "pattern": "Greedy" },
+        { "id": "d", "pattern": "Fast & Slow Pointers" }
+      ],
+      "correctAnswer": "d",
+      "explanation": "Fast & Slow Pointers is a space-efficient way to detect if a number is happy by catching cycles in the sequence of sum-of-squares computations. We compute the sequence of transformations with one pointer advancing one step at a time and another advancing two steps; if there's a cycle (i.e., not happy), the fast pointer will eventually meet the slow pointer, indicating a loop. A Hash Table (or set) approach can also detect cycles by storing seen numbers and checking for repeats, but that uses additional memory. Backtracking is not applicable since there's no branching decision tree—it's a deterministic process rather than a search problem. Greedy doesn't apply either; there's no choice or optimization involved, we are simply following a fixed process and need to detect if it terminates at 1 or cycles."
+    },
+    {
+      "id": "q33",
+      "question": "Merge Overlapping Intervals",
+      "description": "Given a collection of intervals, merge all overlapping intervals and return the result as a list of disjoint intervals covering all the input intervals.",
+      "options": [
+        { "id": "a", "pattern": "Greedy" },
+        { "id": "b", "pattern": "Two Pointers" },
+        { "id": "c", "pattern": "Dynamic Programming" },
+        { "id": "d", "pattern": "Merge Intervals" }
+      ],
+      "correctAnswer": "d",
+      "explanation": "Merge Intervals is the correct pattern. The solution sorts the intervals by start time and then iterates through, merging any intervals that overlap with the current merged interval. This is effectively a greedy approach as well (taking the earliest interval and merging greedily with others), but it's specifically known as the interval merging strategy. Two Pointers isn't directly applicable here; while one might iterate with an index, there's not a pair of indices moving in tandem in the typical solution. Dynamic Programming is unrelated, as there's no subproblem optimization—just sorting and merging. Greedy as a generic concept is true (we merge whenever possible), but without context, simply saying 'Greedy' doesn't pinpoint the technique the way 'Merge Intervals' does in the context of known problem patterns."
+    },
+    {
+      "id": "q34",
+      "question": "Insert Interval",
+      "description": "Given a sorted list of non-overlapping intervals and a new interval, insert the new interval into the list and merge if necessary. Return the new list of intervals.",
+      "options": [
+        { "id": "a", "pattern": "Binary Search" },
+        { "id": "b", "pattern": "Greedy" },
+        { "id": "c", "pattern": "Merge Intervals" },
+        { "id": "d", "pattern": "Two Pointers" }
+      ],
+      "correctAnswer": "c",
+      "explanation": "Merge Intervals is the right pattern for inserting and merging an interval. The approach is to find the correct position to insert the new interval (by start time), then merge it with any overlapping intervals to ensure the result is a consolidated, non-overlapping list. You might use Binary Search to find the insertion index faster, but the core of the problem still involves merging overlapping intervals, which is why it's categorized under Merge Intervals. Greedy doesn't describe a different approach here—it's essentially the same merging logic, just done in a single pass after insertion. Two Pointers isn't specifically applicable; although you traverse the list possibly with an index and compare with the new interval, it’s not the classic two-pointer scenario of moving through two data structures or two ends of one structure. The primary task is merging intervals."
+    },
+    {
+      "id": "q35",
+      "question": "Interval List Intersections",
+      "description": "Given two lists of intervals, each sorted and non-overlapping, return the intersections of these two interval lists.",
+      "options": [
+        { "id": "a", "pattern": "Two Pointers" },
+        { "id": "b", "pattern": "Merge Intervals" },
+        { "id": "c", "pattern": "Sliding Window" },
+        { "id": "d", "pattern": "Dynamic Programming" }
+      ],
+      "correctAnswer": "b",
+      "explanation": "Merge Intervals (interval handling) is the relevant pattern for finding intersections of two interval lists. The typical solution iterates through both lists simultaneously (in a way, using two pointers) and at each step determines if the current intervals overlap, adding the intersection if they do, and then advances the pointer which had the earlier finishing interval. While this uses two indices, calling it just \"Two Pointers\" might overlook the fact that it specifically deals with interval overlap logic; it's generally taught under the umbrella of interval problems (merge/interval pattern). Sliding Window does not apply here, since we are not dealing with contiguous elements in a single list problem. Dynamic Programming is not needed; there's no optimization or subproblem breakdown, just direct iteration and comparison."
+    },
+    {
+      "id": "q36",
+      "question": "Meeting Rooms (Attend All Meetings)",
+      "description": "Given a list of meeting time intervals, determine if a person can attend all meetings (i.e., no two meetings overlap).",
+      "options": [
+        { "id": "a", "pattern": "Merge Intervals" },
+        { "id": "b", "pattern": "Greedy" },
+        { "id": "c", "pattern": "Heap (Min-Heap)" },
+        { "id": "d", "pattern": "Dynamic Programming" }
+      ],
+      "correctAnswer": "a",
+      "explanation": "Merge Intervals is the appropriate pattern for checking meeting overlaps. By sorting meetings by start time and then checking if any adjacent meetings overlap, we can tell if all meetings can be attended. If no interval overlaps its next neighbor, the person can attend all. Greedy isn't a separate approach here beyond sorting (which is already part of the interval pattern) – there's no alternative greedy strategy; it's simply checking sorted intervals for gaps. A Min-Heap is useful in the related problem of finding the minimum number of conference rooms needed (by tracking ongoing meetings), but for just detecting any conflict, a heap is unnecessary overhead. Dynamic Programming doesn't apply; there's no incremental optimization, just a verification of interval consistency."
+    }
+  ]
+}
