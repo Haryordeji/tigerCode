@@ -9,6 +9,7 @@ import authRoutes from './routes/authRoutes';
 import patternRoutes from './routes/patternRoutes';
 import quizRoutes from './routes/quizRoutes';
 import userRoutes from './routes/userRoutes';
+import diagnosticRoutes from './routes/diagnosticRoutes';
 import { notFound, errorHandler } from './middleware/errorHandler';
 
 const app: Application = express();
@@ -40,6 +41,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/patterns', patternRoutes);
 app.use('/api/quiz', quizRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/diagnostic', diagnosticRoutes);
 
 // Home route
 app.get('/', (req, res) => {

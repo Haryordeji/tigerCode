@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Link } from 'react-router-dom';
-import { getUserDashboard, getQuizSummary, DashboardData, QuizSummary } from '../services/dataService';
+import { Link, useNavigate } from 'react-router-dom';
+import { getUserDashboard, getQuizSummary, getDiagnosticProgress, DashboardData, QuizSummary, DiagnosticProgressData } from '../services/dataService';
 
 export const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, diagnosticCompleted, checkingDiagnostic } = useAuth();
   const [data, setData] = useState<DashboardData | null>(null);
   const [quizSummary, setQuizSummary] = useState<QuizSummary | null>(null);
+  const [diagnosticData, setDiagnosticData] = useState<DiagnosticProgressData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -18,6 +20,22 @@ export const Dashboard = () => {
         
         if (!token) {
           throw new Error('Not authenticated');
+        }
+        
+        // Check diagnostic status
+        try {
+          const diagProgress = await getDiagnosticProgress();
+          setDiagnosticData(diagProgress);
+          
+          // If diagnostic is not completed, redirect to diagnostic page
+          if (!diagProgress.diagnosticCompleted && !checkingDiagnostic) {
+            // refresh page
+            window.location.reload();
+            navigate('/diagnostic');
+            return;
+          }
+        } catch (err) {
+          console.error('Failed to load diagnostic progress:', err);
         }
         
         // Fetch dashboard data
@@ -39,12 +57,28 @@ export const Dashboard = () => {
     };
 
     fetchDashboardData();
-  }, []);
+  }, [navigate, checkingDiagnostic]);
 
-  if (loading) {
+  if (loading || checkingDiagnostic) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-tiger-orange"></div>
+      </div>
+    );
+  }
+
+  if (!diagnosticCompleted && !checkingDiagnostic) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-24">
+        <div className="bg-white rounded-xl shadow-md p-8 text-center">
+          <h1 className="text-3xl font-bold text-tiger-orange mb-4">Diagnostic Quiz Required</h1>
+          <p className="mb-8">Before you can access your dashboard, please complete the diagnostic quiz to help us understand your current skill level.</p>
+          <Link to="/diagnostic">
+            <button className="bg-tiger-orange text-black px-8 py-4 rounded-full text-lg font-semibold hover:bg-opacity-90 transition-colors">
+              Take Diagnostic Quiz
+            </button>
+          </Link>
+        </div>
       </div>
     );
   }
@@ -97,6 +131,30 @@ export const Dashboard = () => {
         </div>
       </div>
   
+        {/* Diagnostic Results Summary */}
+        {diagnosticData && (
+        <div className="bg-white rounded-xl shadow-md p-6 mb-8">
+          <h2 className="text-xl font-bold text-tiger-orange mb-4">Diagnostic Results</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">Score</h3>
+              <p className="text-3xl font-bold">{diagnosticData.diagnosticScore}/{diagnosticData.totalQuestions}</p>
+            </div>
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">Accuracy</h3>
+              <p className="text-3xl font-bold">{diagnosticData.accuracy.toFixed(1)}%</p>
+            </div>
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">Date Completed</h3>
+              <p className="text-lg">
+                {diagnosticData.lastDiagnosticAttempt 
+                  ? new Date(diagnosticData.lastDiagnosticAttempt).toLocaleDateString() 
+                  : 'Not completed'}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid md:grid-cols-2 gap-8">
         {/* Pattern Quiz Performance */}

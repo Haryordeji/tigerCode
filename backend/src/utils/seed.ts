@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import connectDB from '../config/db';
 import Pattern from '../models/Pattern';
 import QuizQuestion from '../models/Quiz';
+import DiagnosticQuestion from '../models/Diagnostic';
 import User from '../models/User';
 import Progress from '../models/Progress';
 import { env } from '../config/env';
@@ -10,6 +11,7 @@ import logger from './logger';
 // Import initial data
 import patternsData from '../../data/patterns.json';
 import quizData from '../../data/quiz.json';
+import diagnosticData from '../../data/diagnostic.json';
 
 // Seed the database with initial data
 const seedDatabase = async () => {
@@ -18,10 +20,13 @@ const seedDatabase = async () => {
     await connectDB();
     logger.info('Connected to MongoDB');
 
-    // Clear existing data (optional, use with caution in production)
     logger.info('Clearing existing data...');
     await Pattern.deleteMany({});
     await QuizQuestion.deleteMany({});
+    await DiagnosticQuestion.deleteMany({});
+    await User.deleteMany({});
+    await Progress.deleteMany({});
+    logger.info('Existing data cleared successfully');
     
     // Import patterns
     logger.info('Importing patterns data...');
@@ -32,6 +37,11 @@ const seedDatabase = async () => {
     logger.info('Importing quiz questions data...');
     await QuizQuestion.insertMany(quizData.questions);
     logger.info(`${quizData.questions.length} quiz questions imported successfully`);
+    
+    // Import diagnostic questions
+    logger.info('Importing diagnostic questions data...');
+    await DiagnosticQuestion.insertMany(diagnosticData.questions);
+    logger.info(`${diagnosticData.questions.length} diagnostic questions imported successfully`);
 
     logger.info('Database seeded successfully');
     process.exit(0);
@@ -54,7 +64,7 @@ const createAdminUser = async () => {
     logger.info('Connected to MongoDB');
 
     // Check if admin user exists
-    const adminExists = await User.findOne({ email: 'admin@tigercode.edu' });
+    const adminExists = await User.findOne({ email: 'ayodeji@princeton.edu' });
 
     if (!adminExists) {
       logger.info('Creating admin user...');
@@ -62,8 +72,8 @@ const createAdminUser = async () => {
       // Create admin user
       const admin = await User.create({
         name: 'Admin',
-        email: 'admin@tigercode.edu',
-        password: 'adminPassword123', // Change this to a secure password
+        email: 'ayodeji@princeton.edu',
+        password: 'Password123',
         role: 'admin'
       });
 
@@ -72,8 +82,14 @@ const createAdminUser = async () => {
         user: admin._id,
         patternsProgress: [],
         quizAttempts: [],
+        diagnosticAttempts: [],
         quizScore: 0,
-        totalPatternsViewed: 0
+        diagnosticScore: 0,
+        totalPatternsViewed: 0,
+        correctQuizCount: 0,
+        totalQuizAttempts: 0,
+        diagnosticCompleted: false,
+        lastDiagnosticAttempt: null
       });
 
       logger.info('Admin user created successfully');

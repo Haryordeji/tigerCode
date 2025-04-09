@@ -1,4 +1,5 @@
 import { createContext, useState, useEffect, useContext, ReactNode } from 'react';
+import { getDiagnosticProgress } from '../services/dataService';
 
 interface User {
   _id: string;
@@ -12,6 +13,8 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   error: string | null;
+  diagnosticCompleted: boolean;
+  checkingDiagnostic: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
@@ -24,6 +27,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [diagnosticCompleted, setDiagnosticCompleted] = useState(false);
+  const [checkingDiagnostic, setCheckingDiagnostic] = useState(false);
 
   useEffect(() => {
     // Check if user is already logged in
@@ -35,6 +40,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoading(false);
     }
   }, []);
+
+  // Check diagnostic status when user logs in
+  useEffect(() => {
+    const checkDiagnosticStatus = async () => {
+      if (user) {
+        try {
+          setCheckingDiagnostic(true);
+          const diagnosticProgress = await getDiagnosticProgress();
+          setDiagnosticCompleted(diagnosticProgress.diagnosticCompleted);
+        } catch (error) {
+          console.error('Failed to check diagnostic status:', error);
+          // Default to false if there's an error
+          setDiagnosticCompleted(false);
+        } finally {
+          setCheckingDiagnostic(false);
+        }
+      }
+    };
+  
+    checkDiagnosticStatus();
+  }, [user]);
 
   const fetchUserProfile = async (token: string) => {
     try {
@@ -79,6 +105,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const data = await response.json();
       localStorage.setItem('token', data.data.token);
       setUser(data.data);
+      
+      // Check diagnostic status after login
+      try {
+        const diagnosticProgress = await getDiagnosticProgress();
+        setDiagnosticCompleted(diagnosticProgress.diagnosticCompleted);
+      } catch (error) {
+        console.error('Failed to check diagnostic status:', error);
+        setDiagnosticCompleted(false);
+      }
     } catch (error) {
       if (error instanceof Error) {
         setError(error.message);
@@ -111,6 +146,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const data = await response.json();
       localStorage.setItem('token', data.data.token);
       setUser(data.data);
+      
+      // New users have not completed the diagnostic
+      setDiagnosticCompleted(false);
     } catch (error) {
       if (error instanceof Error) {
         setError(error.message);
@@ -125,7 +163,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = () => {
     // Remove token
     localStorage.removeItem('token');
-        setUser(null);
+    setUser(null);
+    setDiagnosticCompleted(false);
     
     try {
       fetch('/api/auth/logout', {
@@ -148,7 +187,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, error, login, register, logout, googleLogin }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      loading, 
+      error, 
+      diagnosticCompleted, 
+      checkingDiagnostic,
+      login, 
+      register, 
+      logout, 
+      googleLogin 
+    }}>
       {children}
     </AuthContext.Provider>
   );

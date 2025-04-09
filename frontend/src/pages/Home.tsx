@@ -41,6 +41,15 @@ export const Home = () => {
               </div>
             </div>
           </div>
+          
+          {/* Developer Attribution */}
+          <div className="text-center mt-16">
+            <div className="inline-block py-2 px-4 bg-black text-white rounded-lg">
+              <p className="text-sm">
+                <span className="opacity-75">Developed by</span> <span className="font-medium text-tiger-orange">Brandon Ambetsa and Ayo Olusanya</span>
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

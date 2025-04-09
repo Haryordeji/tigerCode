@@ -128,6 +128,28 @@ export interface ProgressOverview {
   }[];
 }
 
+export interface DiagnosticAttempt {
+  questionId: string;
+  selectedAnswer: string;
+  correct: boolean;
+  timestamp: Date;
+  patternTested: string;
+}
+
+export interface DiagnosticProgressData {
+  diagnosticAttempts: DiagnosticAttempt[];
+  diagnosticScore: number;
+  totalQuestions: number;
+  accuracy: number;
+  patternPerformance: Record<string, { 
+    correct: number; 
+    total: number; 
+    accuracy: number;
+  }>;
+  diagnosticCompleted: boolean;
+  lastDiagnosticAttempt: Date | null;
+}
+
 // Helper function for API requests
 const apiRequest = async <T>(endpoint: string, options?: RequestInit): Promise<T> => {
   try {
@@ -247,4 +269,65 @@ export const getNextQuizQuestion = async (): Promise<{
     lastAnsweredIndex: number;
     nextUnansweredIndex: number;
   }>('/quiz/user/continue');
+};
+
+export const getDiagnosticQuestions = async (): Promise<QuizQuestion[]> => {
+  return apiRequest<QuizQuestion[]>('/diagnostic');
+};
+
+export const getDiagnosticQuestion = async (questionId: string): Promise<QuizQuestion> => {
+  return apiRequest<QuizQuestion>(`/diagnostic/${questionId}`);
+};
+
+export const submitDiagnosticAnswer = async (questionId: string, answer: string): Promise<{
+  questionId: string;
+  isCorrect: boolean;
+  correctAnswer: string;
+  explanation: string;
+  patternTested: string;
+}> => {
+  return apiRequest<{
+    questionId: string;
+    isCorrect: boolean;
+    correctAnswer: string;
+    explanation: string;
+    patternTested: string;
+  }>(`/diagnostic/${questionId}/answer`, {
+    method: 'POST',
+    body: JSON.stringify({ answer }),
+  });
+};
+
+export const getDiagnosticProgress = async (): Promise<DiagnosticProgressData> => {
+  return apiRequest<DiagnosticProgressData>('/diagnostic/user/progress');
+};
+
+export const downloadDiagnosticResults = async (): Promise<Blob> => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('Not authenticated');
+    }
+    
+    const response = await fetch('/api/diagnostic/results/download', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to download: ${response.statusText}`);
+    }
+    
+    return await response.blob();
+  } catch (error) {
+    console.error('Download error:', error);
+    throw error;
+  }
+};
+
+export const manuallyCompleteDiagnostic = async (): Promise<{ diagnosticCompleted: boolean }> => {
+  return apiRequest<{ diagnosticCompleted: boolean }>('/diagnostic/complete', {
+    method: 'POST'
+  });
 };

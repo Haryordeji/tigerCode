@@ -10,11 +10,8 @@ export const AuthCallback = () => {
     const token = searchParams.get('token');
     
     if (token) {
-      // Store the token in localStorage
       localStorage.setItem('token', token);
-      
-      // Redirect to home page
-      navigate('/');
+      navigate('/diagnostic'); 
     } else {
       setError('Authentication failed. No token received.');
     }
