@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
-import { env } from '../config/env';
 import { IUser } from '../models/User';
+import dotenv from 'dotenv';
+dotenv.config();
 
 interface UserPayload {
   id: string;
@@ -13,7 +14,7 @@ const JWT_OPTION: jwt.SignOptions = {
   algorithm: 'HS256'
 };
 
-const JWT_SECRET = env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET;
 
 if(!JWT_SECRET){
   throw new Error('JWT_SECRET is not defined in environment variables');
@@ -40,7 +41,7 @@ export const generateToken = (user: IUser): string => {
 
 export const verifyToken = (token: string): UserPayload | null => {
   try {
-    return jwt.verify(token, env.JWT_SECRET) as UserPayload;
+    return jwt.verify(token, process.env.JWT_SECRET!) as UserPayload;
   } catch (error) {
     return null;
   }

@@ -3,7 +3,6 @@ import cors from 'cors';
 import morgan from 'morgan';
 import helmet from 'helmet';
 import passport from 'passport';
-import { env } from './config/env';
 import configurePassport from './config/passport';
 import authRoutes from './routes/authRoutes';
 import patternRoutes from './routes/patternRoutes';
@@ -11,6 +10,8 @@ import quizRoutes from './routes/quizRoutes';
 import userRoutes from './routes/userRoutes';
 import diagnosticRoutes from './routes/diagnosticRoutes';
 import { notFound, errorHandler } from './middleware/errorHandler';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const app: Application = express();
 
@@ -23,12 +24,12 @@ app.use(helmet());
 
 // CORS
 app.use(cors({
-  origin: env.FRONTEND_URL,
+  origin: process.env.FRONTEND_URL,
   credentials: true
 }));
 
 // Logging in development
-if (env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 

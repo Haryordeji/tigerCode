@@ -1,8 +1,9 @@
 import winston from 'winston';
-import { env } from '../config/env';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const logger = winston.createLogger({
-  level: env.NODE_ENV === 'production' ? 'info' : 'debug',
+  level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
   format: winston.format.combine(
     winston.format.timestamp({
       format: 'YYYY-MM-DD HH:mm:ss'
@@ -25,7 +26,7 @@ const logger = winston.createLogger({
 });
 
 // If we're in production, log to a file as well
-if (env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === 'production') {
   logger.add(
     new winston.transports.File({
       filename: 'logs/error.log',

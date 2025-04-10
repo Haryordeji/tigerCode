@@ -5,8 +5,9 @@ import QuizQuestion from '../models/Quiz';
 import DiagnosticQuestion from '../models/Diagnostic';
 import User from '../models/User';
 import Progress from '../models/Progress';
-import { env } from '../config/env';
 import logger from './logger';
+import dotenv from 'dotenv';
+dotenv.config();
 
 // Import initial data
 import patternsData from '../../data/patterns.json';

@@ -1,17 +1,19 @@
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
-import { env } from './env';
 import User, { IUser } from '../models/User';
 import logger from '../utils/logger';
 import mongoose from 'mongoose';
 import Progress from '../models/Progress';
 
+import dotenv from 'dotenv';
+dotenv.config();
+
 // JWT strategy for authentication
 const configureJwtStrategy = () => {
   const options = {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-    secretOrKey: env.JWT_SECRET
+    secretOrKey: process.env.JWT_SECRET
   };
 
   passport.use(
@@ -36,9 +38,9 @@ const configureJwtStrategy = () => {
 const configureGoogleStrategy = () => {
   passport.use(
     new GoogleStrategy({
-      clientID: env.GOOGLE_CLIENT_ID,
-      clientSecret: env.GOOGLE_CLIENT_SECRET,
-      callbackURL: env.GOOGLE_CALLBACK_URL,
+      clientID: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      callbackURL: process.env.GOOGLE_CALLBACK_URL!,
       scope: ['profile', 'email']
     }, 
     async (accessToken, refreshToken, profile, done) => {

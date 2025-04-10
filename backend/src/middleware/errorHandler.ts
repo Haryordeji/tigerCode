@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import logger from '../utils/logger';
-import { env } from '../config/env';
-
+import dotenv from 'dotenv';
+dotenv.config();
 // Custom error class
 export class AppError extends Error {
   statusCode: number;
@@ -51,6 +51,6 @@ export const errorHandler = (err: AppError, req: Request, res: Response, next: N
   res.status(statusCode).json({
     success: false,
     message,
-    stack: env.NODE_ENV === 'production' ? '📋' : err.stack
+    stack: process.env.NODE_ENV === 'production' ? '📋' : err.stack
   });
 };

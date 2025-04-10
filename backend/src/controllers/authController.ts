@@ -4,7 +4,9 @@ import User from '../models/User';
 import Progress from '../models/Progress';
 import { generateToken } from '../utils/jwt';
 import { AppError } from '../middleware/errorHandler';
-import { env } from '../config/env';
+
+import dotenv from 'dotenv';
+dotenv.config();
 
 // @desc    Register a new user
 // @route   POST /api/auth/register
@@ -133,7 +135,7 @@ export const googleCallback = asyncHandler(async (req: Request, res: Response) =
   const token = generateToken(req.user);
 
   // Redirect to frontend with token
-  res.redirect(`${env.FRONTEND_URL}/auth-callback?token=${token}`);
+  res.redirect(`${process.env.FRONTEND_URL}/auth-callback?token=${token}`);
 });
 
 // @desc    Logout user / clear cookie
