@@ -185,7 +185,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const googleLogin = () => {
-    window.location.href = '/api/auth/google';
+    window.location.href = `${baseUrl}/api/auth/google`;
   };
 
   return (

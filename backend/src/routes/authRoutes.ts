@@ -11,6 +11,7 @@ router.post('/login', login);
 router.get('/me', protect, getMe);
 router.post('/logout', protect, logout);
 
+console.log('Auth routes loaded' );
 // Google OAuth routes
 router.get(
   '/google',

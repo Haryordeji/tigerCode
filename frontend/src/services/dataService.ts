@@ -163,7 +163,6 @@ const apiRequest = async <T>(endpoint: string, options?: RequestInit): Promise<T
     }
     
     const baseUrl = import.meta.env.VITE_API_URL || '';
-    console.log(baseUrl)
     const response = await fetch(`${baseUrl}/api${endpoint}`, {
       ...options,
       headers: {
