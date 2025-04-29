@@ -27,9 +27,9 @@ export const Diagnostic = () => {
   } | null>(null);
   const [, setDiagnosticProgress] = useState<DiagnosticProgressData | null>(null);
   const [completedQuestions, setCompletedQuestions] = useState<Map<string, DiagnosticAttempt>>(new Map());
-  
-  const { user } = useAuth();
-  const navigate = useNavigate();
+  const { user, updateDiagnosticStatus } = useAuth();  
+
+const navigate = useNavigate();
   
   // Session stats
   const [, setSessionStats] = useState({
@@ -179,7 +179,7 @@ export const Diagnostic = () => {
     }
   };
 
-  const handleNextQuestion = () => {
+  const handleNextQuestion = async () => {
     setSelectedOption(null);
     setShowAnswer(false);
     setAnswerResult(null);
@@ -187,23 +187,39 @@ export const Diagnostic = () => {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-      // Make a request to check if the diagnostic is complete
-      getDiagnosticProgress().then(progress => {
-        if (progress.diagnosticCompleted) {
-          setDiagnosticCompleted(true);
-        } else {
-          // If for some reason it's not marked as completed, force it
-          manuallyCompleteDiagnostic()
-            .then(() => {
-              setDiagnosticCompleted(true);
-            })
-            .catch(err => {
-              console.error('Failed to manually complete diagnostic:', err);
-              // Even if this fails, show completed screen
-              setDiagnosticCompleted(true);
-            });
+      // Show loading state
+      setLoading(true);
+      try {
+        // First check if it's already marked as completed
+        const progress = await getDiagnosticProgress();
+        
+        if (!progress.diagnosticCompleted) {
+          // If not completed, manually complete it
+          await manuallyCompleteDiagnostic();
         }
-      });
+        
+        // Update local state
+        setDiagnosticCompleted(true);
+        
+        // This is the key part: update the auth context
+        if (updateDiagnosticStatus) {
+          updateDiagnosticStatus(true);
+        }
+        
+        setLoading(false);
+        
+        // Navigate immediately to dashboard instead of waiting
+        navigate('/dashboard', { replace: true });
+      } catch (err) {
+        console.error('Failed to complete diagnostic:', err);
+        setLoading(false);
+        setDiagnosticCompleted(true);
+        
+        // Even if it fails, redirect after a short delay
+        setTimeout(() => {
+          navigate('/dashboard', { replace: true });
+        }, 2000);
+      }
     }
   };
   
@@ -329,9 +345,9 @@ export const Diagnostic = () => {
         )}
 
         <div className="p-6 bg-gray-50 border-t flex justify-between items-center">
-          <div className="text-gray-600">
-            Current score: {score}/{completedQuestions.size + 1}
-          </div>
+        <div className="text-gray-600">
+          Current score: {score}/{completedQuestions.size}
+        </div>
           
           {!showAnswer ? (
             <button

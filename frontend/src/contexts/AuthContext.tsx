@@ -19,6 +19,7 @@ interface AuthContextType {
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   googleLogin: () => void;
+  updateDiagnosticStatus: (completed: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -188,6 +189,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     window.location.href = `${baseUrl}/api/auth/google`;
   };
 
+  const updateDiagnosticStatus = (completed: boolean) => {
+    setDiagnosticCompleted(completed);
+  };
+  
+
   return (
     <AuthContext.Provider value={{ 
       user, 
@@ -198,7 +204,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       login, 
       register, 
       logout, 
-      googleLogin 
+      googleLogin,
+      updateDiagnosticStatus 
     }}>
       {children}
     </AuthContext.Provider>
