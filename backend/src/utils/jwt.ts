@@ -14,7 +14,7 @@ const JWT_OPTION: jwt.SignOptions = {
   algorithm: 'HS256'
 };
 
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET: jwt.Secret = process.env.JWT_SECRET as jwt.Secret;
 
 if(!JWT_SECRET){
   throw new Error('JWT_SECRET is not defined in environment variables');
